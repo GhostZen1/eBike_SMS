@@ -1,3 +1,4 @@
+import 'package:ebikesms/shared/utils/shared_state.dart';
 import 'package:ebikesms/shared/widget/loading_animation.dart';
 import 'package:flutter/material.dart';
 
@@ -19,8 +20,8 @@ class NavDestinationScreen extends StatefulWidget {
 
 class _NavDestinationScreenState extends State<NavDestinationScreen> {
   late final TextEditingController _controller = TextEditingController();
-  late List<dynamic> _allLocations;
-  late List<dynamic> _displayingLocations;
+  late List<dynamic> _allLandmarks;
+  late List<dynamic> _displayingLandmarks;
   bool _isSearchHasText = false;
   DataState _dataState = DataState.loading; // To display loading animation
 
@@ -28,14 +29,14 @@ class _NavDestinationScreenState extends State<NavDestinationScreen> {
     var results = await LocationController.getLocations();
     if (results['status'] == 0) {
       // Failed
-      _allLocations = results['data'];
+      _allLandmarks = results['data'];
       setState(() {
         _dataState = DataState.failure; // To display if fetch had a failure
       });
     } else if (results['status'] == 1) {
       // hasResultful
-      _allLocations = results['data'];
-      _displayingLocations = _allLocations;
+      _allLandmarks = results['data'];
+      _displayingLandmarks = _allLandmarks;
       setState(() {
         _dataState = DataState.hasResult; // To display the locations
       });
@@ -49,9 +50,9 @@ class _NavDestinationScreenState extends State<NavDestinationScreen> {
 
       // Setting displaying locations based on search query
       if (_isSearchHasText) {
-        _displayingLocations.clear();
+        _displayingLandmarks.clear();
         String query = _controller.text.toLowerCase();
-        _displayingLocations = _allLocations.where((landmark) {
+        _displayingLandmarks = _allLandmarks.where((landmark) {
           // This "where" method acts similarly to an SQL where clause
           return landmark['landmark_name_malay']
                   .toLowerCase()
@@ -61,13 +62,13 @@ class _NavDestinationScreenState extends State<NavDestinationScreen> {
               landmark['address'].toLowerCase().contains(query);
         }).toList();
 
-        if (_displayingLocations.isEmpty) {
+        if (_displayingLandmarks.isEmpty) {
           _dataState = DataState.noResult;
         } else {
           _dataState = DataState.hasResult;
         }
       } else {
-        _displayingLocations = _allLocations.toList();
+        _displayingLandmarks = _allLandmarks.toList();
         _dataState = DataState.hasResult;
       }
     });
@@ -92,10 +93,10 @@ class _NavDestinationScreenState extends State<NavDestinationScreen> {
       appBar: AppBar(
         forceMaterialTransparency: true,
         leading: IconButton(
-            onPressed: () {
-              Navigator.pop(context);
-            },
-            icon: CustomIcon.close(20, color: ColorConstant.black)),
+          onPressed: () {
+            _closeScreen();
+          },
+          icon: CustomIcon.close(20, color: ColorConstant.black)),
       ),
       resizeToAvoidBottomInset: false,
       body: Column(
@@ -247,11 +248,14 @@ class _NavDestinationScreenState extends State<NavDestinationScreen> {
                     borderRadius: BorderRadius.zero),
               ),
               onPressed: () {
+                if(_dataState == DataState.loading) {
+                  return;
+                }
                 Navigator.push(
                     context,
                     MaterialPageRoute(
                         builder: (context) => NavConfirmPinpointScreen(
-                              allLocations: _allLocations,
+                              allLocations: _allLandmarks,
                             )));
               },
               child: Row(
@@ -329,22 +333,22 @@ class _NavDestinationScreenState extends State<NavDestinationScreen> {
               childAspectRatio:
                   0.7, // Ratio of width to height of each grid item (the lesser, the longer)
             ),
-            itemCount: _displayingLocations.length, // Total number of items
+            itemCount: _displayingLandmarks.length, // Total number of items
             itemBuilder: (BuildContext context, int index) {
               //return Container(color: ColorConstant.black);
               return DestinationCard(
-                landmarkNameMalay: _displayingLocations[index]
+                landmarkNameMalay: _displayingLandmarks[index]
                     ['landmark_name_malay'],
-                landmarkNameEnglish: _displayingLocations[index]
+                landmarkNameEnglish: _displayingLandmarks[index]
                     ['landmark_name_english'],
-                landmarkType: _displayingLocations[index]['landmark_type'],
+                landmarkType: _displayingLandmarks[index]['landmark_type'],
                 onPressed: () {
                   Navigator.push(
                       context,
                       MaterialPageRoute(
                           builder: (context) => NavConfirmSelectedScreen(
-                                //allLocations: _allLocations,
-                                selectedLocation: _displayingLocations[index],
+                                //allLocations: _allLandmarks,
+                                selectedLandmark: _displayingLandmarks[index],
                               )));
                 },
               );
@@ -353,5 +357,9 @@ class _NavDestinationScreenState extends State<NavDestinationScreen> {
         ),
       ],
     );
+  }
+
+  void _closeScreen() {
+    Navigator.pop(context);
   }
 }

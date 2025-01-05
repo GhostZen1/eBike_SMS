@@ -2,76 +2,65 @@ import 'package:latlong2/latlong.dart';
 
 import '../../global_import.dart';
 
-class CustomMap extends StatelessWidget{
-  final  mapController;
-  final ValueNotifier<List<Marker>> allMarkers;
+class CustomMap extends StatelessWidget {
+  final MapController mapController;
   final LatLng initialCenter;
   final double initialZoom;
   final bool enableInteraction;
+  final List<Marker> allMarkers;
+  final List<LatLng>? routePoints;
 
-  const CustomMap({super.key,
+  const CustomMap({
+    super.key,
     required this.mapController,
-    required this.allMarkers,
     required this.initialCenter,
     required this.initialZoom,
-    required this.enableInteraction
+    required this.enableInteraction,
+    required this.allMarkers,
+    this.routePoints,
   });
 
   @override
   Widget build(BuildContext context) {
-    return ValueListenableBuilder(
-      valueListenable: allMarkers,
-      builder: (context, markers, widget) {
-        if (markers.isEmpty) {
-          return Center(
-              child: Container(
-                padding: const EdgeInsets.all(15),
-                decoration: const BoxDecoration(
-                    color: ColorConstant.white,
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                          color: ColorConstant.shadow,
-                          offset: Offset(0, 2),
-                          blurRadius: 10,
-                          spreadRadius: 0
-                      )
-                    ]
-                ),
-                child: const LoadingAnimation(dimension: 30),
-              )
-          );
-        }
-
-        return FlutterMap(
-          mapController: mapController,
-          options: MapOptions(
-            initialCenter: initialCenter,
-            initialZoom: initialZoom,
-            interactionOptions: InteractionOptions(
-                flags: (enableInteraction) ? InteractiveFlag.all : InteractiveFlag.none
+    return FlutterMap(
+      mapController: mapController,
+      options: MapOptions(
+        initialCenter: initialCenter,
+        initialZoom: initialZoom,
+        interactionOptions: InteractionOptions(
+          flags: (enableInteraction)
+              ? InteractiveFlag.all
+              : InteractiveFlag.none,
+        ),
+      ),
+      children: [
+        TileLayer(
+          urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+          userAgentPackageName: 'dev.fleaflet.flutter_map.example',
+        ),
+        PolygonLayer(
+          polygons: [
+            Polygon(
+              points: MapConstant.theWholeWorld,
+              holePointsList: [MapConstant.geoFencePoints],
+              color: ColorConstant.hintBlue.withOpacity(0.6), // Fill color with opacity
+              borderColor: Colors.blue, // Border color
+              borderStrokeWidth: 1,
             ),
-          ),
-          children: [
-            TileLayer(
-              urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-              userAgentPackageName: 'dev.fleaflet.flutter_map.example',
-            ),
-            MarkerLayer(markers: markers),
-            PolygonLayer(
-              polygons: [
-                Polygon(
-                  points: MapConstant.theWholeWorld,
-                  holePointsList: [MapConstant.geoFencePoints],
-                  color: ColorConstant.hintBlue.withOpacity(0.6), // Fill color with opacity
-                  borderColor: Colors.blue,           // Border color
-                  borderStrokeWidth: 1.0,
-                )
-              ],
-            )
           ],
-        );
-      },
+        ),
+        if (routePoints?.isNotEmpty ?? false)
+          PolylineLayer(
+            polylines: [
+              Polyline(
+                points: routePoints!,
+                color: ColorConstant.skyBlue,
+                strokeWidth: 5,
+              ),
+            ],
+          ),
+        MarkerLayer(markers: allMarkers),
+      ],
     );
   }
 }

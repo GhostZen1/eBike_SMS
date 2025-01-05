@@ -1,5 +1,6 @@
 import 'package:ebikesms/shared/constants/app_constants.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:ntp/ntp.dart';
 
 class Calculation {
@@ -75,4 +76,37 @@ class Calculation {
     }
   }
 
+  /// Decode polyline string into a list of LatLng
+  static List<LatLng> decodePolyline(String polyline) {
+    List<LatLng> points = [];
+    int index = 0, len = polyline.length;
+    int lat = 0, lng = 0;
+
+    while (index < len) {
+      int result = 0, shift = 0;
+      int byte;
+      do {
+        byte = polyline.codeUnitAt(index) - 63;
+        index++;
+        result |= (byte & 0x1f) << shift;
+        shift += 5;
+      } while (byte >= 0x20);
+      int deltaLat = (result & 1) != 0 ? ~(result >> 1) : (result >> 1);
+      lat += deltaLat;
+
+      shift = 0;
+      result = 0;
+      do {
+        byte = polyline.codeUnitAt(index) - 63;
+        index++;
+        result |= (byte & 0x1f) << shift;
+        shift += 5;
+      } while (byte >= 0x20);
+      int deltaLng = (result & 1) != 0 ? ~(result >> 1) : (result >> 1);
+      lng += deltaLng;
+
+      points.add(LatLng(lat / 1E5, lng / 1E5));
+    }
+    return points;
+  }
 }

@@ -1,6 +1,4 @@
 import 'package:ebikesms/modules/global_import.dart';
-import 'package:ebikesms/modules/auth/screen/login.dart';
-
 import '../../../shared/utils/calculation.dart';
 import '../../../shared/utils/shared_state.dart';
 
@@ -36,25 +34,8 @@ Future<void> EndRideModal(BuildContext context, MapController mapController) asy
                 "End ride",
                 style: TextStyle(color: ColorConstant.red),
               )),
-              onTap: () async {
-                // Set marker card to loading
-                Navigator.pop(context);
-                SharedState.markerCardContent.value = MarkerCardContent.loading;
-
-                // Prepare posting of data
-                SharedState.rideEndDatetime.value = await Calculation.getCurrentDateTime();
-                SharedState.currentRideTime.value;
-                // TODO: Post ride (start and end datetime) and bike (new current latlong) data to the database
-
-                // Until data is posted, reset map UI
-                // TODO: Animate the map, to re-align to initial center
-                SharedState.isRiding.value = false;
-                SharedState.markerCardVisibility.value = false;
-                SharedState.visibleMarkers.value.clear();
-                SharedState.visibleMarkers.value.addAll(SharedState.cachedMarkers.value);
-                SharedState.timer.value?.cancel();
-                SharedState.currentRideTime.value = "< 1 minute";
-                SharedState.currentTotalDistance.value = "< 1 meter";
+              onTap: () {
+                _endRide(context);
               },
             ),
           ),
@@ -73,4 +54,39 @@ Future<void> EndRideModal(BuildContext context, MapController mapController) asy
       );
     },
   );
+}
+
+void _endRide(BuildContext context) async {
+  // Set marker card to loading
+  Navigator.pop(context);
+  SharedState.markerCardContent.value = MarkerCardContent.loading;
+
+  // Prepare posting of data
+  SharedState.rideEndDatetime.value = await Calculation.getCurrentDateTime();
+  SharedState.currentRideTime.value;
+  // TODO: Post ride (start and end datetime) and bike (new current latlong) data to the database
+
+  // After data is posted, reset map and marker card UI
+  SharedState.isRiding.value = false;
+  SharedState.visibleMarkers.value.clear();
+  SharedState.visibleMarkers.value.addAll(SharedState.cachedMarkers.value);
+  SharedState.timer.value?.cancel();
+  SharedState.currentRideTime.value = "< 1 minute";
+  SharedState.currentTotalDistance.value = "< 1 meter";
+  // Must set to false first, then true again to make sure ValueListenableBuilder of MarkerCard listens
+  SharedState.markerCardVisibility.value = false;
+  SharedState.markerCardVisibility.value = true;
+  // This is not redundant code. (Though it can be improved)
+
+  // End navigation if it's ongoing
+  if (SharedState.isNavigating.value) {
+    SharedState.isNavigating.value = false;
+    SharedState.routePoints.value = [];
+    SharedState.visibleMarkers.value = SharedState.visibleMarkers.value
+      .where((marker) {
+        // Check if the marker key does not start with "landmark_marker"
+        return !(marker.key.toString().startsWith("landmark_marker"));
+      })
+      .toList();
+  }
 }

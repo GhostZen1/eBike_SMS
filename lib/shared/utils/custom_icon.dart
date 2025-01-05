@@ -404,14 +404,11 @@ class CustomIcon{
       case "Available":
         markerName = "bike-available-marker";
         break;
-      case "Available-Selected":
-        markerName = "bike-available-selected-marker";
-        break;
       case "Unavailable":
         markerName = "bike-unavailable-marker";
         break;
-      case "Unavailable-Selected":
-        markerName = "bike-unavailable-selected-marker";
+      case "Riding":
+        markerName = "riding-marker";
         break;
       default:
         markerName = "default-marker"; // For unknown types

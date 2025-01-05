@@ -37,7 +37,7 @@ class CustomMarker extends Marker{
     );
   }
 
-  // Multiple Markers (Landmarks & Bikes)
+  // Location-pointing Markers with duplication with different ValueKeys (Landmarks & Bikes)
   static Marker landmark({
     required double latitude,
     required double longitude,
@@ -51,30 +51,59 @@ class CustomMarker extends Marker{
       width: dimension,
       height: dimension,
       point: LatLng(latitude, longitude),
-      child: GestureDetector(
-        onTap: onTap,
-        child: CustomIcon.landmarkMarker(1, landmarkType),
+      child: Transform.translate(
+        offset: Offset(0, -dimension / 2),
+        child: GestureDetector(
+          onTap: onTap,
+          child: CustomIcon.landmarkMarker(1, landmarkType),
+        ),
       ),
     );
   }
 
 
-  // Multiple Markers (Landmarks & Bikes)
+  // Location-pointing Markers with duplication with different ValueKeys (Landmarks & Bikes)
   static Marker bike({
     required double latitude,
     required double longitude,
     required String bikeStatus,
     int index = 0,
-    VoidCallback? onTap})
+    VoidCallback? onTap,
+    double dimension = 38})
   {
     return Marker(
       key: ValueKey("bike_marker_$index"),
-      width: 38,
-      height: 38,
+      width: dimension,
+      height: dimension,
       point: LatLng(latitude, longitude),
-      child: GestureDetector(
-        onTap: onTap,
-        child: CustomIcon.bikeMarker(1, bikeStatus),
+      child: Transform.translate(
+        offset: Offset(0, -dimension / 2),
+        child: GestureDetector(
+          onTap: onTap,
+          child: CustomIcon.bikeMarker(1, bikeStatus),
+        ),
+      ),
+    );
+  }
+
+  // Location-pointing Markers, singular (Pinpoint marker)
+  static Marker pinpoint({
+    required double latitude,
+    required double longitude,
+    VoidCallback? onTap,
+    double dimension = 35})
+  {
+    return Marker(
+      key: const ValueKey("pinpoint_marker"),
+      width: dimension,
+      height: dimension,
+      point: LatLng(latitude, longitude),
+      child: Transform.translate(
+        offset: Offset(0, -dimension / 2),
+        child: GestureDetector(
+          onTap: onTap,
+          child: CustomIcon.pinpointColoured(1),
+        ),
       ),
     );
   }

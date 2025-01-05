@@ -16,7 +16,7 @@ class RideHistoryScreen extends StatefulWidget {
 
 class _RideHistoryScreenState extends State<RideHistoryScreen> {
   final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
-  List<dynamic>? _userData;
+  List<dynamic>? _userData = [];
 
   int totalTrips = 0;
   double totalDistance = 0;
@@ -43,6 +43,7 @@ class _RideHistoryScreenState extends State<RideHistoryScreen> {
         if (response.statusCode == 200) {
           // Parse the response body
           final responseBody = json.decode(response.body);
+          print(responseBody); 
 
           if (responseBody['status'] == 'success') {
             // Set the user data as a list of rides
@@ -69,22 +70,41 @@ class _RideHistoryScreenState extends State<RideHistoryScreen> {
 
   // Function to calculate total trips, distance, and ride time
   void _calculateSummaryData() {
-    if (_userData != null) {
-      totalTrips = _userData!.length; // Number of trips
-      totalDistance = 0;
-      totalRideTime = const Duration();
+  if (_userData != null) {
+    print(_userData);
+    totalTrips = _userData!.length; // Number of trips
+    totalDistance = 0.0; // Ensure it's a double
+    totalRideTime = const Duration();
 
-      for (var ride in _userData!) {
-        // Add the distance of each ride
-        totalDistance += ride['distance'];
+    for (var ride in _userData!) {
+      // Safely add the distance
+      totalDistance += (ride['total_distance'] ?? 0).toDouble();
 
-        // Calculate the ride time (start_time and end_time)
-        DateTime start = DateTime.parse(ride['start_time']);
-        DateTime end = DateTime.parse(ride['end_time']);
-        totalRideTime += end.difference(start);
+      // Safely parse start_time and end_time
+      try {
+        String? startTimeStr = ride['start_datetime'];
+        String? endTimeStr = ride['end_datetime'];
+
+        if (startTimeStr != null && endTimeStr != null) {
+          DateTime start = DateTime.parse(startTimeStr);
+          DateTime end = DateTime.parse(endTimeStr);
+
+          // Add ride duration
+          totalRideTime += end.difference(start);
+        } else {
+          print("Invalid time for ride: $ride");
+        }
+      } catch (e) {
+        print("Error parsing date for ride: $ride, Error: $e");
       }
     }
+
+    print("Total trips: $totalTrips");
+    print("Total distance: $totalDistance km");
+    print("Total ride time: ${totalRideTime.inMinutes} minutes");
   }
+}
+
 
   @override
   Widget build(BuildContext context) {
@@ -174,14 +194,14 @@ class _RideHistoryScreenState extends State<RideHistoryScreen> {
                       var ride = _userData![index]; // Access each ride data
                       return HistoryStripItem(
                         bikeId: ride[
-                            'bike_name'], // Use the 'bike_name' from API response
+                            'bike_id'], // Use the 'bike_name' from API response
                         distance:
-                            '${ride['distance']} km', // Format the distance
+                            '${ride['total_distance']} km', // Format the distance
                         duration:
-                            _calculateDuration(ride['start_time'], ride['end_time']), // Format duration
-                        date: ride['start_time']
+                            _calculateDuration(ride['start_datetime'], ride['end_datetime']), // Format duration
+                        date: ride['start_datetime']
                             .split(' ')[0], // Extract date from the timestamp
-                        time: ride['start_time']
+                        time: ride['start_datetime']
                             .split(' ')[1], // Extract time from the timestamp
                       );
                     },

@@ -23,6 +23,9 @@ class ColorConstant {
   static const Color darkBlue = Color(0xFF003399); // #003399
   static const Color shadowdarkBlue = Color.fromARGB(255, 0, 37, 112); // #003399
   static const Color lightBlue = Color(0xFFDBE6FF); // #DBE6FF
+  static const Color lightBlue2 = Color.fromARGB(255, 207, 220, 252); // #DBE6FF
+  static const Color skyBlue = Color(0xFF40A0FF); // #87CEEB
+
    static const Color shadowlightBlue = Color.fromARGB(255, 194, 204, 228); // #DBE6FF
   static const Color hintBlue = Color(0xFFF2F6FF); // #F2F6FF
   static const Color grey = Color(0xFF4F4F4F); // #4F4F4F

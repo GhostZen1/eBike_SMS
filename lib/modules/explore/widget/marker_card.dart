@@ -1,11 +1,8 @@
 import 'dart:async';
-import 'dart:developer';
 
 import 'package:ebikesms/modules/explore/controller/bike_controller.dart';
 import 'package:ebikesms/shared/utils/calculation.dart';
 import 'package:ebikesms/shared/utils/shared_state.dart';
-import 'package:geolocator/geolocator.dart';
-import 'package:latlong2/latlong.dart';
 
 import '../../global_import.dart';
 import '../sub-screen/navigation/screen/nav_destination.dart';
@@ -79,7 +76,7 @@ class _MarkerCardState extends State<MarkerCard> {
             case MarkerCardContent.warningBike:
               return _displayWarningBikeContent();
             case MarkerCardContent.landmark:
-              return _displayLocationContent();
+              return _displayLandmarkContent();
             default:
               return const SizedBox.shrink();
           }
@@ -437,27 +434,28 @@ class _MarkerCardState extends State<MarkerCard> {
                     ],
                   ),
                   const SizedBox(height: 5),
-                  CustomRectangleButton(
-                    height: 35,
-                    label: (widget.isNavigating) ? "End Navigation" : "Start Navigation",
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    backgroundColor: (widget.isNavigating) ? ColorConstant.white : ColorConstant.darkBlue,
-                    foregroundColor: (widget.isNavigating) ? ColorConstant.darkBlue : ColorConstant.white,
-                    borderSide: (widget.isNavigating)
-                        ? const BorderSide(width: 3, color: ColorConstant.darkBlue)
-                        : BorderSide.none,
-                    onPressed: () {
-                      if(widget.isNavigating){
-                        // TODO: End the navigation
-                      }
-                      else {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context)=> const NavDestinationScreen())
-                        );
-                      }
-                    }
+                  ValueListenableBuilder(
+                    valueListenable: SharedState.isNavigating, // Assuming SharedState.isNavigating is a ValueNotifier<bool>
+                    builder: (context, isNavigating, child) {
+                      return CustomRectangleButton(
+                        height: 35,
+                        label: isNavigating ? "End Navigation" : "Start Navigation",
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        backgroundColor: isNavigating ? ColorConstant.white : ColorConstant.darkBlue,
+                        foregroundColor: isNavigating ? ColorConstant.darkBlue : ColorConstant.white,
+                        borderSide: isNavigating
+                            ? const BorderSide(width: 3, color: ColorConstant.darkBlue)
+                            : BorderSide.none,
+                        onPressed: () {
+                          if (isNavigating) {
+                            _endNavigation();
+                          } else {
+                            _startNavigation();
+                          }
+                        },
+                      );
+                    },
                   ),
                 ],
               )
@@ -557,7 +555,6 @@ class _MarkerCardState extends State<MarkerCard> {
     );
   }
 
-
   Widget _displayWarningBikeContent() {
     return Column(
       children: [
@@ -569,58 +566,59 @@ class _MarkerCardState extends State<MarkerCard> {
               child: CustomIcon.bicycle(70, color: ColorConstant.black),
             ),
             Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        const Text(
-                          "Bike ID ",
-                          style: TextStyle(fontWeight: FontWeight.normal, fontSize: 14, color: ColorConstant.black),
-                        ),
-                        Text(
-                          widget.bikeId,
-                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: ColorConstant.black),
-                        ),
-                      ],
-                    ),
-                    Row(
-                      children: [
-                        CustomIcon.bikeStatus(14, widget.bikeStatus),
-                        const SizedBox(width: 3),
-                        AutoSizeText(
-                          widget.bikeStatus,
-                          maxFontSize: 12,
-                          minFontSize: 11,
-                          style: const TextStyle(color: ColorConstant.black),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 5),
-                    CustomRectangleButton(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      const Text(
+                        "Bike ID ",
+                        style: TextStyle(fontWeight: FontWeight.normal, fontSize: 14, color: ColorConstant.black),
+                      ),
+                      Text(
+                        widget.bikeId,
+                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: ColorConstant.black),
+                      ),
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      CustomIcon.bikeStatus(14, widget.bikeStatus),
+                      const SizedBox(width: 3),
+                      AutoSizeText(
+                        widget.bikeStatus,
+                        maxFontSize: 12,
+                        minFontSize: 11,
+                        style: const TextStyle(color: ColorConstant.black),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 5),
+                  ValueListenableBuilder(
+                    valueListenable: SharedState.isNavigating, // Assuming SharedState.isNavigating is a ValueNotifier<bool>
+                    builder: (context, isNavigating, child) {
+                      return CustomRectangleButton(
                         height: 35,
-                        label: (widget.isNavigating) ? "End Navigation" : "Start Navigation",
+                        label: isNavigating ? "End Navigation" : "Start Navigation",
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
-                        backgroundColor: (widget.isNavigating) ? ColorConstant.white : ColorConstant.darkBlue,
-                        foregroundColor: (widget.isNavigating) ? ColorConstant.darkBlue : ColorConstant.white,
-                        borderSide: (widget.isNavigating)
+                        backgroundColor: isNavigating ? ColorConstant.white : ColorConstant.darkBlue,
+                        foregroundColor: isNavigating ? ColorConstant.darkBlue : ColorConstant.white,
+                        borderSide: isNavigating
                             ? const BorderSide(width: 3, color: ColorConstant.darkBlue)
                             : BorderSide.none,
                         onPressed: () {
-                          if(widget.isNavigating){
-                            // TODO: End the navigation
+                          if (isNavigating) {
+                            _endNavigation();
+                          } else {
+                            _startNavigation();
                           }
-                          else {
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(builder: (context)=> const NavDestinationScreen())
-                            );
-                          }
-                        }
-                    ),
-                  ],
-                )
+                        },
+                      );
+                    },
+                  ),
+                ],
+              )
             ),
           ],
         ),
@@ -721,10 +719,7 @@ class _MarkerCardState extends State<MarkerCard> {
     );
   }
 
-
-  final _scrollControllerMalay = ScrollController();
-  final _scrollControllerEnglish = ScrollController();
-  Widget _displayLocationContent() {
+  Widget _displayLandmarkContent() {
     return Column(
       children: [
         Row(
@@ -744,7 +739,6 @@ class _MarkerCardState extends State<MarkerCard> {
                       maxHeight: 50,
                     ),
                     child: SingleChildScrollView(
-                      controller: _scrollControllerMalay,
                       scrollDirection: Axis.vertical,
                       child: AutoSizeText(
                         widget.landmarkNameMalay,
@@ -758,9 +752,7 @@ class _MarkerCardState extends State<MarkerCard> {
                     radius: const Radius.circular(50),
                     thumbVisibility: true,
                     trackVisibility: true,
-                    controller: _scrollControllerEnglish,
                     child: SingleChildScrollView(
-                      controller: _scrollControllerEnglish,
                       scrollDirection: Axis.horizontal,
                       child: AutoSizeText(
                         widget.landmarkNameEnglish,
@@ -819,5 +811,25 @@ class _MarkerCardState extends State<MarkerCard> {
         const Spacer(flex: 8),
       ],
     );
+  }
+
+  void _startNavigation() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const NavDestinationScreen()),
+    );
+  }
+
+  void _endNavigation() {
+    setState(() {
+      if (SharedState.isNavigating.value) {
+        SharedState.isNavigating.value = false;
+        SharedState.routePoints.value = [];
+        SharedState.visibleMarkers.value
+            .removeWhere((marker) => (marker.key == const ValueKey("pinpoint_marker")));
+        SharedState.visibleMarkers.value
+            .removeWhere((marker) => (marker.key as ValueKey).value.toString().startsWith("landmark_marker_"));
+      }
+    });
   }
 }

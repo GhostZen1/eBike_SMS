@@ -1,3 +1,4 @@
+import 'package:ebikesms/modules/global_import.dart';
 import 'package:flutter/material.dart';
 
 class RevenueScreen extends StatefulWidget {
@@ -11,12 +12,9 @@ class _RevenueScreenState extends State<RevenueScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Revenue Screen'),
-      ),
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(20.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
@@ -50,7 +48,7 @@ class _RevenueScreenState extends State<RevenueScreen> {
                     children: [
                       _buildLegendIndicator(Colors.pink, 'Today'),
                       _buildLegendIndicator(Colors.yellow, 'Week'),
-                      _buildLegendIndicator(Colors.blue, 'Month'),
+                      _buildLegendIndicator(ColorConstant.darkBlue, 'Month'),
                     ],
                   ),
                 ],
@@ -60,11 +58,11 @@ class _RevenueScreenState extends State<RevenueScreen> {
               // Transaction Summary
               const Text(
                 'Transaction Made',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: Colors.blue),
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: ColorConstant.darkBlue),
               ),
               const Text(
                 'RM XXX',
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.blue),
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: ColorConstant.darkBlue),
               ),
               const SizedBox(height: 20),
 
@@ -110,13 +108,13 @@ class _RevenueScreenState extends State<RevenueScreen> {
                           Container(
                             padding: const EdgeInsets.all(8),
                             decoration: BoxDecoration(
-                              color: Colors.blue.shade100,
+                              color: ColorConstant.lightBlue,
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: const [
-                                Text('Transaction Detail #3534658766312'),
+                                Text('Transaction Detail\n#3534658766312'),
                                 Text('RM 100'),
                               ],
                             ),

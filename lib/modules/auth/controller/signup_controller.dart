@@ -16,14 +16,14 @@ class SignupController extends ChangeNotifier {
   ) async {
     
 
-    // Navigate to BiometricAuthScreen and await its result
-    int? authResult = await Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const BiometricAuthScreen()),
-    );
+    // // Navigate to BiometricAuthScreen and await its result
+    // int? authResult = await Navigator.push(
+    //   context,
+    //   MaterialPageRoute(builder: (context) => const BiometricAuthScreen()),
+    // );
 
     // Proceed based on biometric authentication result
-    if (authResult == 1) {
+    // if (authResult == 1) {
       // Biometric authentication successful, proceed with API call
       final url = Uri.parse("${ApiBase.baseUrl}/signup.php");
       
@@ -73,12 +73,12 @@ class SignupController extends ChangeNotifier {
         );
         return 0; // Indicate failure
       }
-    } else {
-      // Biometric authentication failed
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Biometric authentication failed')),
-      );
-      return 0; // Indicate failure
-    }
+    // } else {
+    //   // Biometric authentication failed
+    //   ScaffoldMessenger.of(context).showSnackBar(
+    //     const SnackBar(content: Text('Biometric authentication failed')),
+    //   );
+    //   return 0; // Indicate failure
+    // }
   }
 }

@@ -5,7 +5,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 
 class ReportController {
-  static String _apiUrl = 'http://192.168.0.31/e-bike/user_report.php';
+  static String _apiUrl = '${ApiBase.baseUrl}/user_report.php';
 
   Future<int> sendReport(
     BuildContext context,
@@ -29,7 +29,7 @@ class ReportController {
 
       // Prepare request payload
       Map<String, String> requestPayload = {
-        'user_id': '1',
+        'user_id': userId,
         'report_type': reportType,
         'report_detail': reportDetail,
       };

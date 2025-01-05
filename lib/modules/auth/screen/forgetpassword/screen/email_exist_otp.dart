@@ -167,8 +167,14 @@ class _EmailExistScreenState extends State<EmailExistScreen> {
                          String userInput = getOtpInput();
                          bool result = varifyOTP(otpsent, userInput);
 
-                          if (result == true){
-                            //pergi full name
+                          if (result == true){                            
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      SetNewPasswordScreen(email: email),
+                                ),
+                              );
                           }
                         
                       },

@@ -14,6 +14,9 @@ class _BiometricAuthScreenState extends State<BiometricAuthScreen> {
   bool _isAuthenticating = false; // Track authentication status
 
   Future<void> _authenticate() async {
+    // Prevent re-authentication if already authenticating
+    if (_isAuthenticating) return;
+
     setState(() {
       _isAuthenticating = true; // Start loading
     });
@@ -27,6 +30,7 @@ class _BiometricAuthScreenState extends State<BiometricAuthScreen> {
 
         bool authenticated = false;
 
+        // Only attempt to authenticate with the first available biometric type
         if (availableBiometrics.contains(BiometricType.face)) {
           authenticated = await auth.authenticate(
             localizedReason: 'Authenticate using your face',
@@ -54,25 +58,24 @@ class _BiometricAuthScreenState extends State<BiometricAuthScreen> {
         }
 
         if (authenticated) {
-          Navigator.pop(context, 1);
+          Navigator.pop(context, 1); // Successful authentication
         } else {
-          Navigator.pop(context, 0);
+          Navigator.pop(context, 0); // Authentication failed
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Authentication failed, please try again')),
           );
         }
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-              content: Text('No biometrics available. Use PIN instead.')),
+          const SnackBar(content: Text('No biometrics available. Use PIN instead.')),
         );
-        await _usePinAuthentication();
+        await _usePinAuthentication(); // Fallback to PIN
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error: $e')),
       );
-      Navigator.pop(context, 0);
+      Navigator.pop(context, 0); // Error during authentication
     } finally {
       setState(() {
         _isAuthenticating = false; // Stop loading
@@ -91,15 +94,15 @@ class _BiometricAuthScreenState extends State<BiometricAuthScreen> {
       );
 
       if (authenticated) {
-        Navigator.pop(context, 1);
+        Navigator.pop(context, 1); // Successful authentication
       } else {
-        Navigator.pop(context, 0);
+        Navigator.pop(context, 0); // Authentication failed
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error using PIN: $e')),
       );
-      Navigator.pop(context, 0);
+      Navigator.pop(context, 0); // Error during PIN authentication
     }
   }
 
@@ -134,8 +137,7 @@ class _BiometricAuthScreenState extends State<BiometricAuthScreen> {
                     top: 40,
                     left: 20,
                     child: IconButton(
-                      icon: const Icon(Icons.arrow_back,
-                          color: ColorConstant.black),
+                      icon: const Icon(Icons.arrow_back, color: ColorConstant.black),
                       onPressed: () => Navigator.pop(context),
                     ),
                   ),
@@ -183,20 +185,19 @@ class _BiometricAuthScreenState extends State<BiometricAuthScreen> {
                         width: screenWidth * 0.8,
                         height: screenHeight * 0.07,
                         child: ElevatedButton(
-                          onPressed: _isAuthenticating ? null : _authenticate,
+                          onPressed: _isAuthenticating ? null : () async {
+                            await _authenticate(); // Call authentication
+                          },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xFF003366),
                             foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 80, vertical: 15),
+                            padding: const EdgeInsets.symmetric(horizontal: 80, vertical: 15),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(30),
                             ),
                           ),
                           child: _isAuthenticating
-                              ? const CircularProgressIndicator(
-                                  color: Colors.white,
-                                )
+                              ? const CircularProgressIndicator(color: Colors.white)
                               : const Text(
                                   "Get Started",
                                   style: TextStyle(

@@ -30,7 +30,7 @@ if (isset($data['matric_number']) && isset($data['password'])) {
         echo json_encode(["status" => "error", "message" => "Matric number already registered"]);
     } else {
         // Insert new user into the database
-        $query = "INSERT INTO user (user_email,matric_number,password,user_name,full_name) VALUES ('$user_email','$matric_number', '$password', '$username','$full_name')";
+        $query = "INSERT INTO user (user_email,matric_number,password,user_name,full_name,user_type) VALUES ('$user_email','$matric_number', '$password', '$username','$full_name','Rider')";
         if ($conn->query($query) === TRUE) {
             echo json_encode(["status" => "success", "message" => "Registration successful"]);
         } else {

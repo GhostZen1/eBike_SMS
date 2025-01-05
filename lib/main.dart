@@ -11,6 +11,8 @@ import 'modules/auth/screen/login.dart'; // Adjust the path as needed
 import 'modules/auth/controller/user_storage_service.dart'; // Adjust the path as needed
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart'; // Add dependency in pubspec.yaml
+import 'package:ebikesms/modules/admin/report/screen/report.dart';
+
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -43,9 +45,13 @@ class MyApp extends StatelessWidget {
           displayMedium: TextStyle(fontFamily: 'Poppins'),
         ),
       ),
+      // home: ReportScreen(),
       //home: SignupScreen(pageController: pageController),  // Pass the PageController here
-      home: BottomNavBar(userId: 1, userType: 'Rider'),
+      // home: BottomNavBar(userId: 1, userType: 'Rider'),
       //home: ScannerScreen(),
+
+            home: LoginScreen(),
+
     );
   }
 }
