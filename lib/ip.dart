@@ -1,8 +1,7 @@
 import 'package:latlong2/latlong.dart';
 
 class ApiBase {
-  // Static URLs for local development
-  static String amir = "http://192.168.0.31/e-bike";
+static String amir = "http://192.168.0.31/e-bike";
   static String king = "http://192.168.10.155/e-bike";
   static String kingHouse = "http://192.168.1.117/e-bike";
   static String kingUTeM = "http://10.131.75.68/e-bike";
