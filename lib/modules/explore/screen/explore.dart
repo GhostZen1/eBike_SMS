@@ -9,6 +9,9 @@ import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 import '../controller/landmark_controller.dart';
 import '../widget/custom_map.dart';
+import 'package:http/http.dart' as http;
+import 'dart:async'; // For Timer
+import 'dart:convert'; // For jsonDecode
 
 class ExploreScreen extends StatefulWidget {
   const ExploreScreen({super.key});
@@ -16,6 +19,9 @@ class ExploreScreen extends StatefulWidget {
   @override
   _ExploreScreenState createState() => _ExploreScreenState();
 }
+
+
+
 
 class _ExploreScreenState extends State<ExploreScreen> with TickerProviderStateMixin {
   late List<dynamic> _allLocations;
@@ -30,6 +36,7 @@ class _ExploreScreenState extends State<ExploreScreen> with TickerProviderStateM
     _fetchLandmarks();
     _fetchBikes();
     _fetchCurrentUserLocation();
+    _startLocationUpdates();
   }
 
   @override
@@ -108,6 +115,8 @@ class _ExploreScreenState extends State<ExploreScreen> with TickerProviderStateM
     );
   }
 
+
+
   void _buildLandmarkMarkers() {
     if (_allLocations.isNotEmpty) {
       for (int i = 0; i < _allLocations.length; i++) {
@@ -156,6 +165,85 @@ class _ExploreScreenState extends State<ExploreScreen> with TickerProviderStateM
       _isMarkersLoaded = true;
     });
   }
+
+
+
+
+
+
+
+//Coding Zu
+//Untuk fetch location esp32
+
+  Timer? _locationTimer;
+  //bool _isMarkersLoaded = false;
+
+  // Replace with the actual IP of your ESP32
+  final String esp32Url = 'http://192.168.0.100/location';
+
+  // Method to fetch ESP32 location
+  Future<Map<String, double>> fetchESP32Location() async {
+    try {
+      final response = await http.get(Uri.parse(esp32Url));
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        return {
+          'latitude': double.parse(data['latitude']),
+          'longitude': double.parse(data['longitude']),
+        };
+      } else {
+        throw Exception('Failed to fetch location');
+      }
+    } catch (e) {
+      print('Error fetching ESP32 location: $e');
+      return {'latitude': 0.0, 'longitude': 0.0};
+    }
+  }
+
+  void _buildCurrentMarkers(double latitude, double longitude) {
+  SharedState.visibleMarkers.value.clear(); // Clear existing markers
+  SharedState.visibleMarkers.value.add(
+    CustomMarker.bike(
+      index: 40,
+      latitude: latitude,
+      longitude: longitude,
+      bikeStatus: "Test",
+      onTap: () {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Current Location: \nLatitude: $latitude\nLongitude: $longitude"),
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      },
+    ),
+  );
+
+  setState(() {
+    _isMarkersLoaded = true;
+  });
+}
+
+   // Method to start periodic location updates
+  void _startLocationUpdates() {
+    _locationTimer = Timer.periodic(Duration(seconds: 5), (timer) async {
+      final location = await fetchESP32Location();
+      _buildCurrentMarkers(location['latitude']!, location['longitude']!);
+    });
+  }
+
+
+//sampai sini
+
+
+
+
+
+
+
+
+
+
 
   void _buildUserMarker() {
     SharedState.visibleMarkers.value.add(

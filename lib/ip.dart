@@ -8,6 +8,7 @@ class ApiBase {
   static String kingUTeM = "http://10.131.75.68/e-bike";
   static String kingLibrary = "http://192.168.0.200/e-bike";
   static String iman = "http://192.168.0.30/e-bike";
+  static String zu = "http://192.168.0.243/e-bike";
   static String hosting = "https://etourmersing.com/Ebike_API/";
 
   // Alternatively, if you just need the base URL as a string
