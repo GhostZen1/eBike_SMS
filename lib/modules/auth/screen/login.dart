@@ -31,190 +31,196 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final PageController pageController = PageController();
-
     return Scaffold(
       backgroundColor: ColorConstant.hintBlue, // Light blue background
-      body: Column(
-        children: [
-          // Header section with wave and icon
-          Container(
-            height: 200,
-            decoration: const BoxDecoration(
-              image: DecorationImage(
-                image: AssetImage('assets/images/Vector_3.png'),
-                fit: BoxFit.cover,
-              ),
-              borderRadius: BorderRadius.only(
-                bottomLeft: Radius.circular(100),
+      resizeToAvoidBottomInset: true, // Ensures layout adjusts for keyboard
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            // Header section with wave and icon
+            Container(
+              height: 200,
+              decoration: const BoxDecoration(
+                image: DecorationImage(
+                  image: AssetImage('assets/images/Vector_3.png'),
+                  fit: BoxFit.cover,
+                ),
+                borderRadius: BorderRadius.only(
+                  bottomLeft: Radius.circular(100),
+                ),
               ),
             ),
-          ),
-          const SizedBox(height: 50),
+            const SizedBox(height: 50),
 
-          // Login text fields and buttons
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Center(
-                  child: Text(
-                    "Welcome back!",
-                    style: TextStyle(
-                      fontSize: 30,
-                      letterSpacing: 1.0,
-                      fontWeight: FontWeight.bold,
-                      fontFamily: 'Poppins',
-                    ),
-                  ),
-                ),
-
-                const SizedBox(height: 25),
-                // Username TextField
-                Center(
-                  child: SizedBox(
-                    width: 350.0,
-                    child: TextField(
-                      controller: _usernameController,
-                      decoration: InputDecoration(
-                        filled: true,
-                        fillColor: Colors
-                            .white, // White background for the text field
-                        labelText: 'Matric Number',
-                        border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(25),
-                            borderSide: const BorderSide(
-                              color: Color(
-                                  0xFF003366), // Change to your desired color
-                              width: 2.0,
-                            )),
-                      ),
-                    ),
-                  ),
-                ),
-
-                const SizedBox(height: 15),
-                // Password TextField with Show/Hide functionality
-                Center(
-                  child: SizedBox(
-                    width: 350.0, // Set the width of the container
-                    child: TextField(
-                      obscureText: !_passwordVisible,
-                      controller: _passwordController,
-                      decoration: InputDecoration(
-                        filled: true,
-                        fillColor: Colors
-                            .white, // White background for the text field
-                        labelText: 'Password',
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(25),
-                          borderSide: const BorderSide(
-                            color: Color(0xFF003366), // Blue border color
-                            width: 2.0,
-                          ),
-                        ),
-                        suffixIcon: IconButton(
-                          icon: Icon(
-                            _passwordVisible
-                                ? Icons.visibility
-                                : Icons.visibility_off,
-                          ),
-                          onPressed: () {
-                            setState(() {
-                              _passwordVisible = !_passwordVisible;
-                            });
-                          },
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-
-                const SizedBox(height: 30),
-                // Login Button
-                Center(
-                  child: SizedBox(
-                    width: 350.0,
-                    child: SizedBox(
-                      width: double.infinity,
-                      height: 60,
-                      child: ElevatedButton(
-                        onPressed: _handleLogin,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF003366),
-                          foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(30),
-                          ),
-                        ),
-                        child: const Text(
-                          'Log In',
-                          style: TextStyle(
-                            fontFamily: 'Poppins',
-                            letterSpacing: 1.0,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-
-                const SizedBox(height: 15),
-                Center(
-                  child: GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => ForgetPasswordScreen()),
-                          );
-                      // Add your desired action here, like navigating to another screen
-                      print("Forgot Password tapped!");
-                    },
-                    child: const Text(
-                      "Forgot Password?",
+            // Login text fields and buttons
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Center(
+                    child: Text(
+                      "Welcome back!",
                       style: TextStyle(
-                        color: Colors.blue,
+                        fontSize: 30,
+                        letterSpacing: 1.0,
+                        fontWeight: FontWeight.bold,
                         fontFamily: 'Poppins',
                       ),
                     ),
                   ),
-                ),
-              ],
-            ),
-          ),
+                  const SizedBox(height: 25),
 
-
-          // Sign Up Link
-          const Spacer(),
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 25),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Text(
-                  "Don't have an account? ",
-                  style: TextStyle(fontFamily: 'Poppins'),
-                ),
-                GestureDetector(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => const MatricPasswordScreen()),
-                    );
-                  },
-                  child: const Text(
-                    "Sign up",
-                    style: TextStyle(
-                        color: Colors.blue, fontFamily: 'Poppins'),
+                  // Username TextField
+                  Center(
+                    child: SizedBox(
+                      width: 350.0,
+                      child: TextField(
+                        controller: _usernameController,
+                        decoration: InputDecoration(
+                          filled: true,
+                          fillColor: Colors.white,
+                          labelText: 'Matric Number',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(25),
+                            borderSide: const BorderSide(
+                              color: Color(0xFF003366),
+                              width: 2.0,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
                   ),
-                ),
-              ],
+
+                  const SizedBox(height: 15),
+
+                  // Password TextField with Show/Hide functionality
+                  Center(
+                    child: SizedBox(
+                      width: 350.0,
+                      child: TextField(
+                        obscureText: !_passwordVisible,
+                        controller: _passwordController,
+                        decoration: InputDecoration(
+                          filled: true,
+                          fillColor: Colors.white,
+                          labelText: 'Password',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(25),
+                            borderSide: const BorderSide(
+                              color: Color(0xFF003366),
+                              width: 2.0,
+                            ),
+                          ),
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              _passwordVisible
+                                  ? Icons.visibility
+                                  : Icons.visibility_off,
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                _passwordVisible = !_passwordVisible;
+                              });
+                            },
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 30),
+
+                  // Original Login Button Style
+                  Center(
+                    child: SizedBox(
+                      width: 350.0,
+                      child: SizedBox(
+                        width: double.infinity,
+                        height: 60,
+                        child: ElevatedButton(
+                          onPressed: _handleLogin,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF003366),
+                            foregroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(30),
+                            ),
+                          ),
+                          child: const Text(
+                            'Log In',
+                            style: TextStyle(
+                              fontFamily: 'Poppins',
+                              letterSpacing: 1.0,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 15),
+                  Center(
+                    child: GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => ForgetPasswordScreen()),
+                        );
+                        print("Forgot Password tapped!");
+                      },
+                      child: const Text(
+                        "Forgot Password?",
+                        style: TextStyle(
+                          color: Colors.blue,
+                          fontFamily: 'Poppins',
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+
+            const SizedBox(height: 90),
+
+            // Sign Up Link
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 25),
+              child: Column(
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Text(
+                        "Don't have an account? ",
+                        style: TextStyle(fontFamily: 'Poppins'),
+                      ),
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) =>
+                                const MatricPasswordScreen()),
+                          );
+                        },
+                        child: const Text(
+                          "Sign up",
+                          style: TextStyle(
+                              color: Colors.blue, fontFamily: 'Poppins'),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
