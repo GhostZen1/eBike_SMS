@@ -37,8 +37,7 @@ class _TimeTopUpProcessScreenState extends State<TimeTopUpProcessScreen> {
       appBar: AppBar(
         leading: IconButton(
             onPressed: () {
-              Navigator.pushReplacement(context,
-                  MaterialPageRoute(builder: (context) => const MenuScreen()));
+              Navigator.pop(context, userId);
             },
             icon: CustomIcon.close(20, color: ColorConstant.black)),
         title: const Text("Processing Payment"),
