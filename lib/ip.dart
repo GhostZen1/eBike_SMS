@@ -8,5 +8,5 @@ class ApiBase {
   static String hosting = "https://etourmersing.com/Ebike_API/";
 
   // Alternatively, if you just need the base URL as a string
-  static String get baseUrl => iman;
+  static String get baseUrl => hosting;
 }
