@@ -5,7 +5,7 @@ import 'package:ebikesms/ip.dart';
 import 'package:http/http.dart' as http;
 
 class BikeController extends ChangeNotifier {
-    // Method to fetch all bike data
+  // Method to fetch all bike data
   static Future<Map<String, dynamic>> getAllBikeData() async {
     return await _makePostRequest("get_all_bike.php");
   }
@@ -19,7 +19,8 @@ class BikeController extends ChangeNotifier {
   }
 
   // Generalized private method for making HTTP POST requests
-  static Future<Map<String, dynamic>> _makePostRequest(String endpoint, {Map<String, dynamic>? body}) async {
+  static Future<Map<String, dynamic>> _makePostRequest(String endpoint,
+      {Map<String, dynamic>? body}) async {
     final url = Uri.parse("${ApiBase.baseUrl}/$endpoint");
     debugPrint("Starting HTTP POST request to URL: $url");
 
@@ -42,12 +43,14 @@ class BikeController extends ChangeNotifier {
 
       // Handle response based on status
       if (responseBody['status'] == 'error') {
-        debugPrint("Request failed. Response status: ${responseBody['status']}");
+        debugPrint(
+            "Request failed. Response status: ${responseBody['status']}");
         return _handleError(responseBody['message']);
       }
 
       if (responseBody['status'] == 'success') {
-        debugPrint("Request successful. Response status: ${responseBody['status']}");
+        debugPrint(
+            "Request successful. Response status: ${responseBody['status']}");
         return {
           'status': 1, // Indicate success
           'message': responseBody['message'],
@@ -56,7 +59,6 @@ class BikeController extends ChangeNotifier {
       }
 
       return _handleError("Unexpected status in response body");
-
     } on FormatException catch (e) {
       debugPrint("Error decoding response body: $e");
       return _handleError(e.toString());
