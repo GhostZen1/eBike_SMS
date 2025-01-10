@@ -31,10 +31,9 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final PageController pageController = PageController();
-
     return Scaffold(
       backgroundColor: ColorConstant.hintBlue, // Light blue background
+      resizeToAvoidBottomInset: true, // Ensures layout adjusts for keyboard
       body: SingleChildScrollView(
         child: Column(
           children: [
@@ -52,6 +51,8 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
             ),
             const SizedBox(height: 50),
+
+            // Login text fields and buttons
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
               child: Column(
@@ -68,8 +69,8 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ),
                   ),
-
                   const SizedBox(height: 25),
+
                   // Username TextField
                   Center(
                     child: SizedBox(
@@ -78,38 +79,37 @@ class _LoginScreenState extends State<LoginScreen> {
                         controller: _usernameController,
                         decoration: InputDecoration(
                           filled: true,
-                          fillColor: Colors
-                              .white, // White background for the text field
+                          fillColor: Colors.white,
                           labelText: 'Matric Number',
                           border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(25),
-                              borderSide: const BorderSide(
-                                color: Color(
-                                    0xFF003366), // Change to your desired color
-                                width: 2.0,
-                              )),
+                            borderRadius: BorderRadius.circular(25),
+                            borderSide: const BorderSide(
+                              color: Color(0xFF003366),
+                              width: 2.0,
+                            ),
+                          ),
                         ),
                       ),
                     ),
                   ),
 
                   const SizedBox(height: 15),
+
                   // Password TextField with Show/Hide functionality
                   Center(
                     child: SizedBox(
-                      width: 350.0, // Set the width of the container
+                      width: 350.0,
                       child: TextField(
                         obscureText: !_passwordVisible,
                         controller: _passwordController,
                         decoration: InputDecoration(
                           filled: true,
-                          fillColor: Colors
-                              .white, // White background for the text field
+                          fillColor: Colors.white,
                           labelText: 'Password',
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(25),
                             borderSide: const BorderSide(
-                              color: Color(0xFF003366), // Blue border color
+                              color: Color(0xFF003366),
                               width: 2.0,
                             ),
                           ),
@@ -131,7 +131,8 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
 
                   const SizedBox(height: 30),
-                  // Login Button
+
+                  // Original Login Button Style
                   Center(
                     child: SizedBox(
                       width: 350.0,
@@ -165,11 +166,10 @@ class _LoginScreenState extends State<LoginScreen> {
                     child: GestureDetector(
                       onTap: () {
                         Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => ForgetPasswordScreen()),
-                            );
-                        // Add your desired action here, like navigating to another screen
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => ForgetPasswordScreen()),
+                        );
                         print("Forgot Password tapped!");
                       },
                       child: const Text(
@@ -181,33 +181,40 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ),
                   ),
+                ],
+              ),
+            ),
 
-                  const SizedBox(height: 230),
-                  // Sign Up Link
-                  Center(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Text(
-                          "Don't have an account? ",
-                          style: TextStyle(fontFamily: 'Poppins'),
+            const SizedBox(height: 90),
+
+            // Sign Up Link
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 25),
+              child: Column(
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Text(
+                        "Don't have an account? ",
+                        style: TextStyle(fontFamily: 'Poppins'),
+                      ),
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) =>
+                                const MatricPasswordScreen()),
+                          );
+                        },
+                        child: const Text(
+                          "Sign up",
+                          style: TextStyle(
+                              color: Colors.blue, fontFamily: 'Poppins'),
                         ),
-                        GestureDetector(
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => MatricPasswordScreen()),
-                            );
-                          },
-                          child: const Text(
-                            "Sign up",
-                            style: TextStyle(
-                                color: Colors.blue, fontFamily: 'Poppins'),
-                          ),
-                        ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ],
               ),
