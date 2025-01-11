@@ -3,8 +3,8 @@
 #include <HardwareSerial.h>
 
 // WiFi credentials
-const char* ssid = "iPhone 11";
-const char* password = "Harry12345678";
+const char* ssid = "WIFI SSID";
+const char* password = "WIFI Password";
 
 // Define RX2 and TX2 pins
 #define RX2_PIN 16  // GPIO16 is RX2

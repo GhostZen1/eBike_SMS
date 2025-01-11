@@ -172,6 +172,8 @@ class _ExploreScreenState extends State<ExploreScreen> with TickerProviderStateM
 
 
 
+
+
 //Coding Zu
 //Untuk fetch location esp32
 
@@ -201,6 +203,8 @@ class _ExploreScreenState extends State<ExploreScreen> with TickerProviderStateM
   }
 
   void _buildCurrentMarkers(double latitude, double longitude) {
+  //SharedState.bikeCurrentLatitude = latitude as ValueNotifier<double>;
+  //SharedState.bikeCurrentLongitude = longitude as ValueNotifier<double>;
   SharedState.visibleMarkers.value.clear(); // Clear existing markers
   SharedState.visibleMarkers.value.add(
     CustomMarker.bike(
@@ -208,14 +212,15 @@ class _ExploreScreenState extends State<ExploreScreen> with TickerProviderStateM
       latitude: latitude,
       longitude: longitude,
       bikeStatus: "Test",
-      onTap: () {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text("Current Location: \nLatitude: $latitude\nLongitude: $longitude"),
-            duration: const Duration(seconds: 3),
-          ),
-        );
-      },
+      onTap: () => _onTapCurrentMarker(latitude, longitude),
+      // onTap: () {
+      //   ScaffoldMessenger.of(context).showSnackBar(
+      //     SnackBar(
+      //       content: Text("Current Location: \nLatitude: $latitude\nLongitude: $longitude"),
+      //       duration: const Duration(seconds: 3),
+      //     ),
+      //   );
+      // },
     ),
   );
 
@@ -409,6 +414,44 @@ class _ExploreScreenState extends State<ExploreScreen> with TickerProviderStateM
     SharedState.markerCardVisibility.value = true;
     // This is not redundant code. (Though it can be improved)
   }
+
+
+
+
+
+
+
+
+  void _onTapCurrentMarker(double latitude, double longitude) {
+    // Update these values to make marker card visible and it's details
+    SharedState.markerCardContent.value = MarkerCardContent.scanBike;
+    SharedState.bikeId.value = "Latitude = $latitude, Longitude = $longitude";
+    SharedState.bikeStatus.value = "Available";
+    SharedState.bikeCurrentLatitude.value = latitude ;
+    SharedState.bikeCurrentLongitude.value = longitude;
+
+    // Map animation when tapped
+    animatePinpoint(LatLng(latitude, longitude));
+    animateRotation(0);
+
+    // Must set to false first, then true again to make sure ValueListenableBuilder of MarkerCard listens
+    SharedState.markerCardVisibility.value = false;
+    SharedState.markerCardVisibility.value = true;
+    // This is not redundant code. (Though it can be improved)
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
   void animatePinpoint(LatLng target) {
     // Set the duration of the animation
