@@ -28,6 +28,7 @@ class MenuScreen extends StatefulWidget {
 class _MenuScreenState extends State<MenuScreen> {
   final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
   late String totalRideTime = ""; // TODO: Fetch from database
+  late int userId = 0;
   Map<String, dynamic>? _userData;
 
   @override
@@ -36,16 +37,20 @@ class _MenuScreenState extends State<MenuScreen> {
     _fetchUserData();
   }
 
+  void onBack() {
+    _fetchUserData();
+  }
+
   Future<void> _fetchUserData() async {
     try {
       // Retrieve the user ID from secure storage
-      String? userId = await _secureStorage.read(key: 'userId');
-      print(userId);
+      String? userIdString = await _secureStorage.read(key: 'userId');
+      userId = int.tryParse(userIdString ?? "0") ?? 0;
 
-      if (userId != null) {
+      if (userIdString != null) {
         // Fetch user data from the API using the user_id
         final response = await http.get(
-          Uri.parse('${ApiBase.baseUrl}/get_user_id.php?user_id=$userId'),
+          Uri.parse('${ApiBase.baseUrl}/get_user_id.php?user_id=$userIdString'),
         );
 
         if (response.statusCode == 200) {
@@ -146,13 +151,18 @@ class _MenuScreenState extends State<MenuScreen> {
                     right: 0,
                     child: Center(
                       child: TextButton(
-                        onPressed: () {
-                          Navigator.push(
+                        onPressed: () async {
+                          final result = await Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => const TimeTopUpScreen(),
+                              builder: (context) => TimeTopUpScreen(
+                                userId: userId,
+                              ),
                             ),
                           );
+
+                          // Refresh the user data if any result is returned
+                          onBack();
                         },
                         child: const Text(
                           "+ Add More",

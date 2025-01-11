@@ -8,7 +8,8 @@ import 'package:flutter/services.dart';
 import '../../../../../shared/widget/custom_buttons.dart';
 
 class TimeTopUpScreen extends StatefulWidget {
-  const TimeTopUpScreen({super.key});
+  final int userId;
+  const TimeTopUpScreen({super.key, required this.userId});
 
   @override
   _TimeTopUpScreenState createState() => _TimeTopUpScreenState();
@@ -16,12 +17,14 @@ class TimeTopUpScreen extends StatefulWidget {
 
 class _TimeTopUpScreenState extends State<TimeTopUpScreen> {
   final TextEditingController _controller = TextEditingController();
+  late int userId;
   bool isValidAmount = false;
   String labelText = "";
   Color labelColor = ColorConstant.black;
 
   int rideTimeAvailable = 0; // KIV
-  int rideTimeVacantValue =  PricingConstant.rideTimeLimit - 0; // rideTimeAvailable;
+  int rideTimeVacantValue =
+      PricingConstant.rideTimeLimit - 0; // rideTimeAvailable;
 
   @override
   void initState() {
@@ -32,18 +35,20 @@ class _TimeTopUpScreenState extends State<TimeTopUpScreen> {
       final rideTopUpLimit = rideTimeVacantValue * PricingConstant.priceRate;
 
       setState(() {
-        if(amount < PricingConstant.minTopUpAmt) {  // Displays minimum amount
+        if (amount < PricingConstant.minTopUpAmt) {
+          // Displays minimum amount
           labelText = "Minimum amount: ${TextConstant.minTopUpLabel}";
           labelColor = ColorConstant.black;
           isValidAmount = false;
-        }
-        else if(amount > rideTopUpLimit) { // Displays ride time will be topped up (if appropriate amount)
+        } else if (amount > rideTopUpLimit) {
+          // Displays ride time will be topped up (if appropriate amount)
           labelText = "Max is 30 hours. Your limit: RM$rideTopUpLimit";
           labelColor = ColorConstant.red;
           isValidAmount = false;
-        }
-        else {  // If amount is over the limit
-          labelText = "Ride Time: ${Calculation.convertMoneyToLongRideTime(int.parse(_controller.text))}";
+        } else {
+          // If amount is over the limit
+          labelText =
+              "Ride Time: ${Calculation.convertMoneyToLongRideTime(int.parse(_controller.text))}";
           labelColor = ColorConstant.black;
           isValidAmount = true;
         }
@@ -56,9 +61,10 @@ class _TimeTopUpScreenState extends State<TimeTopUpScreen> {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-          onPressed: () { Navigator.pop(context); },
-          icon: CustomIcon.close(20, color: ColorConstant.black)
-        ),
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            icon: CustomIcon.close(20, color: ColorConstant.black)),
         title: const Text("Enter amount"),
         centerTitle: true,
       ),
@@ -66,8 +72,7 @@ class _TimeTopUpScreenState extends State<TimeTopUpScreen> {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Expanded(
-            child:
-            Column(
+            child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Center(
@@ -92,22 +97,21 @@ class _TimeTopUpScreenState extends State<TimeTopUpScreen> {
                           fontSize: 40,
                         ),
                         hintText: '0',
-                        contentPadding: EdgeInsets.symmetric(vertical: 20, horizontal: 10),
+                        contentPadding:
+                            EdgeInsets.symmetric(vertical: 20, horizontal: 10),
                         focusedBorder: InputBorder.none,
                       ),
                     ),
                   ),
                 ),
-                Text(
-                  labelText,
-                  style: TextStyle(color: labelColor)
-                )
+                Text(labelText, style: TextStyle(color: labelColor))
               ],
             ),
           ),
           Column(
             children: [
-              const Text("Rate: ${TextConstant.priceRateLabel}",
+              const Text(
+                "Rate: ${TextConstant.priceRateLabel}",
                 style: TextStyle(fontSize: 14),
               ),
               Container(
@@ -117,13 +121,22 @@ class _TimeTopUpScreenState extends State<TimeTopUpScreen> {
                   onPressed: () {
                     int value = int.parse(_controller.text);
                     Navigator.pushReplacement(
-                        context,
-                        // TODO: Write user id from sharedState (assigned to amir)
-                        MaterialPageRoute(builder: (context)=> TimeTopUpProcessScreen(userId: 1, keyedTotal: value)
-                    ));
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => TimeTopUpProcessScreen(
+                          userId: widget.userId,
+                          keyedTotal: value,
+                        ),
+                      ),
+                    ).then((_) {
+                      setState(() {
+                        labelText = "New label text after returning";
+                        labelColor = ColorConstant.black;
+                      });
+                    });
                   },
                   enable: isValidAmount ? true : false,
-                )
+                ),
               )
             ],
           )
@@ -133,20 +146,19 @@ class _TimeTopUpScreenState extends State<TimeTopUpScreen> {
   }
 }
 
-
 // This InputFormatter disallows multiple leading zeros
 class _LeadingZeroInputFormatter extends TextInputFormatter {
   @override
   // TextEditingValue executes when the field is being edited everytime
-  TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {
+  TextEditingValue formatEditUpdate(
+      TextEditingValue oldValue, TextEditingValue newValue) {
     final currentValue = newValue.text;
-    if(currentValue.startsWith('0') && currentValue.length > 1){
+    if (currentValue.startsWith('0') && currentValue.length > 1) {
       return oldValue;
     }
-    if(currentValue.length > 3) {
+    if (currentValue.length > 3) {
       return oldValue;
     }
     return newValue;
   }
 }
-

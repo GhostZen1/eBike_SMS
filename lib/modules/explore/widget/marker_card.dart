@@ -7,6 +7,7 @@ import 'package:ebikesms/shared/utils/shared_state.dart';
 import '../../global_import.dart';
 import '../sub-screen/navigation/screen/nav_destination.dart';
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:http/http.dart' as http;
 
 import 'custom_marker.dart';
 
@@ -159,16 +160,28 @@ class _MarkerCardState extends State<MarkerCard> {
                           fontWeight: FontWeight.w600,
                           backgroundColor: ColorConstant.white,
                           foregroundColor: ColorConstant.darkBlue,
-                          borderSide: BorderSide(
-                            width: 2,
-                            color: (widget.bikeStatus == "Available") ? ColorConstant.darkBlue : ColorConstant.shadow
-                          ),
-                          onPressed: () {
-                            // TODO: Ring the bike (make buzzer sound)
-                          }
-                        )
+                          
+                          borderSide: const BorderSide(width: 2, color: ColorConstant.darkBlue),
+                          onPressed: () async {
+                            final esp8266Ip = "192.168.164.53"; // Replace with your ESP8266 IP
+                            final url = Uri.parse('http://$esp8266Ip/ring');
+
+                            try {
+                              final response = await http.get(url);
+
+                              if (response.statusCode == 200) {
+                                print("Bike is ringing!");
+                              } else {
+                                print("Failed to ring the bike. Status code: ${response.statusCode}");
+                              }
+                            } catch (e) {
+                              print("Error: $e");
+                            }
+                          },
+                        ),
                       ),
                     ],
+
                   )
                 ],
               )

@@ -7,15 +7,11 @@ import 'package:ebikesms/shared/utils/calculation.dart';
 import 'package:ebikesms/shared/widget/loading_animation.dart';
 import '../../../../../shared/widget/custom_buttons.dart';
 
-
 class TimeTopUpProcessScreen extends StatefulWidget {
   final int userId;
   final int keyedTotal;
-  const TimeTopUpProcessScreen({
-    super.key,
-    required this.userId,
-    required this.keyedTotal
-  });
+  const TimeTopUpProcessScreen(
+      {super.key, required this.userId, required this.keyedTotal});
 
   @override
   State<TimeTopUpProcessScreen> createState() => _TimeTopUpProcessScreenState();
@@ -40,22 +36,14 @@ class _TimeTopUpProcessScreenState extends State<TimeTopUpProcessScreen> {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-        onPressed: () {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context)=> const MenuScreen())
-          );
-        },
-            icon: CustomIcon.close(20, color: ColorConstant.black)
-        ),
-        title: const Text(
-          "Processing Payment"
-        ),
+            onPressed: () {
+              Navigator.pop(context, userId);
+            },
+            icon: CustomIcon.close(20, color: ColorConstant.black)),
+        title: const Text("Processing Payment"),
         centerTitle: true,
       ),
-      body: isSuccessful ?
-          _displaySuccessfulView() :
-          _displayLoadingView(),
+      body: isSuccessful ? _displaySuccessfulView() : _displayLoadingView(),
     );
   }
 
@@ -78,27 +66,26 @@ class _TimeTopUpProcessScreenState extends State<TimeTopUpProcessScreen> {
         ),
         IntrinsicWidth(
             child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 50),
-              child: Text(
-                "Please do not exit this page while it's processing. It may take a few seconds",
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.normal,
-                ),
-              ),
-            )
-        )
+          padding: EdgeInsets.symmetric(horizontal: 50),
+          child: Text(
+            "Please do not exit this page while it's processing. It may take a few seconds",
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.normal,
+            ),
+          ),
+        ))
       ],
     );
   }
 
   Widget _displaySuccessfulView() {
     return Expanded(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
           Expanded(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -123,11 +110,13 @@ class _TimeTopUpProcessScreenState extends State<TimeTopUpProcessScreen> {
             margin: const EdgeInsets.symmetric(horizontal: 35, vertical: 40),
             child: CustomRectangleButton(
               label: "Back to menu",
-              onPressed: () { Navigator.pop(context); },
+              onPressed: () {
+                Navigator.pop(context, userId);
+              },
             ),
           ),
-        ]
-      )
+        ],
+      ),
     );
   }
 
@@ -155,24 +144,21 @@ class _TimeTopUpProcessScreenState extends State<TimeTopUpProcessScreen> {
     );
 
     // Error occurred, display a snack bar
-    if(result['status'] == 0) {
+    if (result['status'] == 0) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text(result['message']),
-        duration: const Duration(seconds: 2)
-      ));
-      setState(() { isSuccessful = false; });
+          content: Text(result['message']),
+          duration: const Duration(seconds: 2)));
+      setState(() {
+        isSuccessful = false;
+      });
     }
     // Successful
-    else if(result['status'] == 1) {
+    else if (result['status'] == 1) {
       // For fake loading effect :P
       await Future.delayed(const Duration(seconds: 1, milliseconds: 2));
-      setState(() { isSuccessful = true; });
+      setState(() {
+        isSuccessful = true;
+      });
     }
   }
 }
-
-
-
-
-
-
