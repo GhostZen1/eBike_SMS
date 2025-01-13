@@ -165,26 +165,29 @@ class _MarkerCardState extends State<MarkerCard> {
                           
                           borderSide: const BorderSide(width: 2, color: ColorConstant.darkBlue),
                           onPressed: () async {
-                            final esp8266Ip = "192.168.164.53"; // Replace with your ESP8266 IP
-                            final url = Uri.parse('http://$esp8266Ip/ring');
+                          final serverIp = "192.168.0.17"; // Replace with your server's IP
+                          final url = Uri.parse('http://192.168.0.17/e-bike/ring.php?endpoint=ring'); // Updated API URL
 
-                            try {
-                              final response = await http.get(url);
+                          try {
+                            final response = await http.post(url); // Use POST request to interact with the API
 
-                              if (response.statusCode == 200) {
-                                print("Bike is ringing!");
-                              } else {
-                                print("Failed to ring the bike. Status code: ${response.statusCode}");
-                              }
-                            } catch (e) {
-                              print("Error: $e");
+                            if (response.statusCode == 200) {
+                              // Success: Log or display a message
+                              print("Bike is ringing!");
+                            } else {
+                              // Error: Log the status code
+                              print("Failed to ring the bike. Status code: ${response.statusCode}");
                             }
-                          },
-                        ),
+                          } catch (e) {
+                            // Handle connection or other errors
+                            print("Error: $e");
+                          }
+                        },
                       ),
-                    ],
+                    ),
+                  ],
+                )
 
-                  )
                 ],
               )
             ),
