@@ -36,7 +36,7 @@ class _ExploreScreenState extends State<ExploreScreen> with TickerProviderStateM
     _fetchLandmarks();
     _fetchBikes();
     _fetchCurrentUserLocation();
-    _startLocationUpdates();
+    //_startLocationUpdates();
   }
 
   @override
@@ -238,6 +238,26 @@ class _ExploreScreenState extends State<ExploreScreen> with TickerProviderStateM
   }
 
 
+ void _onTapCurrentMarker(double latitude, double longitude) {
+    // Update these values to make marker card visible and it's details
+    SharedState.markerCardContent.value = MarkerCardContent.scanBike;
+    SharedState.bikeId.value = "Latitude = $latitude, Longitude = $longitude";
+    SharedState.bikeStatus.value = "Available";
+    SharedState.bikeCurrentLatitude.value = latitude ;
+    SharedState.bikeCurrentLongitude.value = longitude;
+
+    // Map animation when tapped
+    animatePinpoint(LatLng(latitude, longitude));
+    animateRotation(0);
+
+    // Must set to false first, then true again to make sure ValueListenableBuilder of MarkerCard listens
+    SharedState.markerCardVisibility.value = false;
+    SharedState.markerCardVisibility.value = true;
+    // This is not redundant code. (Though it can be improved)
+  }
+
+
+
 //sampai sini
 
 
@@ -415,30 +435,6 @@ class _ExploreScreenState extends State<ExploreScreen> with TickerProviderStateM
     // This is not redundant code. (Though it can be improved)
   }
 
-
-
-
-
-
-
-
-  void _onTapCurrentMarker(double latitude, double longitude) {
-    // Update these values to make marker card visible and it's details
-    SharedState.markerCardContent.value = MarkerCardContent.scanBike;
-    SharedState.bikeId.value = "Latitude = $latitude, Longitude = $longitude";
-    SharedState.bikeStatus.value = "Available";
-    SharedState.bikeCurrentLatitude.value = latitude ;
-    SharedState.bikeCurrentLongitude.value = longitude;
-
-    // Map animation when tapped
-    animatePinpoint(LatLng(latitude, longitude));
-    animateRotation(0);
-
-    // Must set to false first, then true again to make sure ValueListenableBuilder of MarkerCard listens
-    SharedState.markerCardVisibility.value = false;
-    SharedState.markerCardVisibility.value = true;
-    // This is not redundant code. (Though it can be improved)
-  }
 
 
 
