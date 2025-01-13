@@ -2,6 +2,7 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:ebikesms/modules/explore/widget/custom_warning_border.dart';
 import 'package:ebikesms/modules/menu/widget/icon_card.dart';
 import 'package:ebikesms/modules/menu/widget/menu_tile.dart';
+import 'package:ebikesms/shared/utils/calculation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart'; // Secure storage dependency
 import 'package:http/http.dart' as http;
@@ -17,6 +18,8 @@ import 'package:ebikesms/modules/menu/sub-menu/settings/screen/about.dart';
 import 'package:ebikesms/modules/learn/screen/learn.dart';
 import 'package:ebikesms/modules/menu/widget/logout_modal.dart';
 import 'package:ebikesms/modules/menu/sub-menu/user_report/user_report.dart';
+
+import '../../../shared/utils/shared_state.dart';
 
 class MenuScreen extends StatefulWidget {
   const MenuScreen({super.key});
@@ -34,10 +37,6 @@ class _MenuScreenState extends State<MenuScreen> {
   @override
   void initState() {
     super.initState();
-    _fetchUserData();
-  }
-
-  void onBack() {
     _fetchUserData();
   }
 
@@ -61,6 +60,8 @@ class _MenuScreenState extends State<MenuScreen> {
             if (responseBody['status'] == 'success') {
               setState(() {
                 _userData = responseBody['data'];
+                // SharedState.availableRideTime.value = _userData?['available_ride_time'];
+                SharedState.availableRideTime.value = 1;
               });
             } else {
               throw Exception(
@@ -117,10 +118,15 @@ class _MenuScreenState extends State<MenuScreen> {
                           'N/A', // Ensure this key exists in API
                       style: const TextStyle(color: ColorConstant.grey),
                     ),
-                    Text(
-                      _userData?['user_email'] ??
-                          'N/A', // Ensure this key exists in API
-                      style: const TextStyle(color: ColorConstant.grey),
+                    SizedBox(
+                      width: 220, // Adjust the width as needed
+                      child: AutoSizeText(
+                        _userData?['user_email'] ?? 'N/A', // Ensure this key exists in API
+                        maxFontSize: 14,
+                        minFontSize: 10,
+                        maxLines: 1,
+                        style: const TextStyle(color: ColorConstant.grey, fontSize: 12),
+                      ),
                     ),
                   ],
                 ),
@@ -134,45 +140,44 @@ class _MenuScreenState extends State<MenuScreen> {
               child: Stack(
                 clipBehavior: Clip.none,
                 children: [
-                  // Bottom larger box
-                  Container(
-                    width: double.infinity,
-                    height: 185,
-                    decoration: BoxDecoration(
-                      color: ColorConstant.shadowdarkBlue, // Darker blue color
-                      borderRadius: BorderRadius.circular(15),
-                    ),
-                  ),
-
                   // Positioned Button ("+ Add More")
-                  Positioned(
-                    top: 135,
-                    left: 0,
-                    right: 0,
-                    child: Center(
-                      child: TextButton(
-                        onPressed: () async {
-                          final result = await Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => TimeTopUpScreen(
-                                userId: userId,
-                              ),
-                            ),
-                          );
-
-                          // Refresh the user data if any result is returned
-                          onBack();
-                        },
-                        child: const Text(
-                          "+ Add More",
-                          style: TextStyle(
-                            color: ColorConstant.white,
-                            fontSize: 14,
-                            fontWeight: FontWeight.w700,
-                            fontFamily: 'Poppins',
+                  GestureDetector(
+                    onTap: () async {
+                      await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => TimeTopUpScreen(
+                            userId: userId,
                           ),
                         ),
+                      );
+                      // Refresh the user data if any result is returned
+                      _fetchUserData();
+                    },
+                    child: Container(
+                      width: double.infinity,
+                      height: 185,
+                      decoration: BoxDecoration(
+                        color: ColorConstant.shadowdarkBlue, // Darker blue color
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                      child: const Column(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Padding(
+                            padding: EdgeInsets.symmetric(vertical: 15),
+                            child: Text(
+                              "+ Add More",
+                              style: TextStyle(
+                                color: ColorConstant.white,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w700,
+                                fontFamily: 'Poppins',
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ),
@@ -210,21 +215,27 @@ class _MenuScreenState extends State<MenuScreen> {
                           ),
                           const Spacer(),
                           // Ride Time Value
-                          FittedBox(
-                            fit: BoxFit.scaleDown,
-                            child: AutoSizeText(
-                              _userData?['available_ride_time'] ??
-                                  'Empty Balance.', // Use the phone number or default value
-                              maxFontSize: 28,
-                              minFontSize: 24,
-                              maxLines: 1,
-                              textAlign: TextAlign.center,
-                              style: const TextStyle(
-                                letterSpacing: 1.0,
-                                fontWeight: FontWeight.bold,
-                                color: ColorConstant.white,
-                              ),
-                            ),
+                          ValueListenableBuilder(
+                            valueListenable: SharedState.availableRideTime,
+                            builder: (_, rideTime, __) {
+                              return FittedBox(
+                                fit: BoxFit.scaleDown,
+                                child: AutoSizeText(
+                                  (_userData?['available_ride_time'] == null || rideTime == 0)
+                                      ? 'Empty Balance.'
+                                      : Calculation.convertMinutesToLongRideTime(rideTime),
+                                  maxFontSize: 28,
+                                  minFontSize: 24,
+                                  maxLines: 1,
+                                  textAlign: TextAlign.center,
+                                  style: const TextStyle(
+                                    letterSpacing: 1.0,
+                                    fontWeight: FontWeight.bold,
+                                    color: ColorConstant.white,
+                                  ),
+                                ),
+                              );
+                            }
                           ),
                           const Spacer(),
                         ],
@@ -232,7 +243,8 @@ class _MenuScreenState extends State<MenuScreen> {
                     ),
                   ),
                 ],
-              )),
+              )
+          ),
           const SizedBox(height: 20),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),

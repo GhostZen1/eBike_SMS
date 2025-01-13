@@ -26,7 +26,7 @@ class _NavDestinationScreenState extends State<NavDestinationScreen> {
   DataState _dataState = DataState.loading; // To display loading animation
 
   void _fetchLocations() async {
-    var results = await LocationController.getLocations();
+    var results = await LandmarkController.getLandmarks();
     if (results['status'] == 0) {
       // Failed
       _allLandmarks = results['data'];

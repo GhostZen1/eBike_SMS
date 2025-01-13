@@ -36,14 +36,12 @@ class BottomNavBar extends StatefulWidget {
   }
 }
 
-
 // User type: Rider
 // User type: Rider
 // User type: Rider
 class _BottomNavBarRider extends State<BottomNavBar> {
   late final double _labelSize = 11;
   late final double _navBarHeight = 60;
-  late int _selectedNavIndex = 0;
   late double _navBarWidth;
 
   @override
@@ -56,13 +54,18 @@ class _BottomNavBarRider extends State<BottomNavBar> {
           alignment: Alignment.bottomCenter,
           children: [
             // Explore and Menu content (Scanner is accessed in the rounded button)
-            IndexedStack(
-              index: _selectedNavIndex,
-              children: const [
-                ExploreScreen(),
-                SizedBox.shrink(), // This is a dummy widget that exists BELOW middle rounded button
-                MenuScreen()
-              ],
+            ValueListenableBuilder(
+              valueListenable: SharedState.selectedNavIndex,
+              builder: (_, selectedIndex, __) {
+                return IndexedStack(
+                  index: selectedIndex,
+                  children: const [
+                    ExploreScreen(),
+                    SizedBox.shrink(), // This is a dummy widget that exists BELOW middle rounded button
+                    MenuScreen()
+                  ],
+                );
+              }
             ),
 
             // Marker Card
@@ -100,7 +103,7 @@ class _BottomNavBarRider extends State<BottomNavBar> {
                         bikeStatus: SharedState.bikeStatus.value,
                         bikeId: SharedState.bikeId.value,
                         currentTotalDistance: SharedState.currentTotalDistance.value,
-                        currentRideTime: SharedState.currentRideTime.value,
+                        currentRideTime: SharedState.currentRideDuration.value,
                         // Location marker cards:
                         landmarkNameMalay: SharedState.landmarkNameMalay.value,
                         landmarkNameEnglish: SharedState.landmarkNameEnglish.value,
@@ -142,7 +145,7 @@ class _BottomNavBarRider extends State<BottomNavBar> {
                       selectedLabelStyle: TextStyle(fontSize: _labelSize, fontWeight: FontWeight.w600),
                       unselectedItemColor: ColorConstant.black,
                       unselectedLabelStyle: TextStyle(fontSize: _labelSize, fontWeight: FontWeight.normal),
-                      currentIndex: _selectedNavIndex,
+                      currentIndex: SharedState.selectedNavIndex.value,
                       showUnselectedLabels: true,
                       items: _bottomNavigationBarItems(),
                       onTap: _onItemTapped,
@@ -255,9 +258,9 @@ class _BottomNavBarRider extends State<BottomNavBar> {
 
   bool temp = false;
   void _onItemTapped(int index) {
-    if (index != _selectedNavIndex) {
+    if (index != SharedState.selectedNavIndex.value) {
       setState(() {
-        _selectedNavIndex = index;
+        SharedState.selectedNavIndex.value = index;
         if(index != 0) {
           temp = SharedState.markerCardVisibility.value;
           SharedState.markerCardVisibility.value = false;
@@ -311,7 +314,6 @@ class _BottomNavBarAdmin extends State<BottomNavBar> {
   late final double _labelSize = 11;
   late double _navBarWidth;
   late final double _navBarHeight = 60;
-  int _selectedNavIndex = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -321,7 +323,7 @@ class _BottomNavBarAdmin extends State<BottomNavBar> {
         child: Stack(
           alignment: Alignment.bottomCenter,
           children: [
-            _bottomNavChildrenWidget().elementAt(_selectedNavIndex),
+            _bottomNavChildrenWidget().elementAt(SharedState.selectedNavIndex.value),
             Stack(
               alignment: AlignmentDirectional.bottomCenter,
               fit: StackFit.passthrough,
@@ -350,7 +352,7 @@ class _BottomNavBarAdmin extends State<BottomNavBar> {
                       selectedLabelStyle: TextStyle(fontSize: _labelSize, fontWeight: FontWeight.w600),
                       unselectedItemColor: ColorConstant.black,
                       unselectedLabelStyle: TextStyle(fontSize: _labelSize, fontWeight: FontWeight.normal),
-                      currentIndex: _selectedNavIndex,
+                      currentIndex: SharedState.selectedNavIndex.value,
                       showUnselectedLabels: true,
                       items: _bottomNavigationBarItems(),
                       onTap: _onItemTapped,
@@ -366,9 +368,9 @@ class _BottomNavBarAdmin extends State<BottomNavBar> {
   }
 
   void _onItemTapped(int index) {
-    if (index != _selectedNavIndex) {
+    if (index != SharedState.selectedNavIndex.value) {
       setState(() {
-        _selectedNavIndex = index;
+        SharedState.selectedNavIndex.value = index;
       });
       _pageController.jumpToPage(index);
     }

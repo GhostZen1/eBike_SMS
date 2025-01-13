@@ -173,7 +173,7 @@ class _ExploreScreenState extends State<ExploreScreen> with TickerProviderStateM
     setState(() {
       _isMarkersLoaded = false;
     });
-    var results = await LocationController.getLocations();
+    var results = await LandmarkController.getLandmarks();
     if(results['status'] == 0) { // Failed
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Status: ${results['status']}, Message: ${results['message']}")),
