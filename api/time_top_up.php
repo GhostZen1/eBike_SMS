@@ -41,7 +41,6 @@
                             WHERE user_id = {$user_id}";
 
             if ($conn->query($updateQuery) === TRUE) {
-                echo $updateQuery;
                 echo json_encode(["status" => "success", "message" => "Transaction added and user ride time updated"]);
             } else {
                 echo json_encode(["status" => "error", "message" => "Failed to update user ride time"]);
