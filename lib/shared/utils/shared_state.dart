@@ -7,6 +7,9 @@ import '../../modules/global_import.dart';
 import '../constants/app_constants.dart';
 
 class SharedState {
+  // App related
+  static ValueNotifier<int> selectedNavIndex = ValueNotifier(0);
+
   // Map related
   static ValueNotifier<bool> isNavigating = ValueNotifier(false);
   static ValueNotifier<bool> isRiding = ValueNotifier(false);
@@ -29,10 +32,13 @@ class SharedState {
   static ValueNotifier<double> bikeCurrentLatitude = ValueNotifier(double.minPositive);
   static ValueNotifier<double> bikeCurrentLongitude = ValueNotifier(double.minPositive);
 
+  // User related
+  static ValueNotifier<int> availableRideTime = ValueNotifier(0);
+
   // Ride related
   static ValueNotifier<Timer?> timer = ValueNotifier<Timer?>(null);
   static ValueNotifier<String> currentTotalDistance = ValueNotifier("< 1 meter"); // In km/m format
-  static ValueNotifier<String> currentRideTime = ValueNotifier("< 1 minute");  // In "xh xm" format
+  static ValueNotifier<String> currentRideDuration = ValueNotifier("< 1 minute");  // In "xh xm" format
   static ValueNotifier<String> rideStartDatetime = ValueNotifier(""); // In DATETIME format 1999-12-31 00:00:00
   static ValueNotifier<String> rideEndDatetime = ValueNotifier(""); // In DATETIME format 1999-12-31 00:00:00
 

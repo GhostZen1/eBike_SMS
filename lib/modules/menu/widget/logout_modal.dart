@@ -33,10 +33,11 @@ Future<void> logoutModal(BuildContext context) async {
                 style: TextStyle(color: ColorConstant.red),
               )),
               onTap: () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const LoginScreen()));
+                Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(builder: (context) => const LoginScreen()),
+                      (Route<dynamic> route) => false, // Removes all previous routes
+                );
               },
             ),
           ),

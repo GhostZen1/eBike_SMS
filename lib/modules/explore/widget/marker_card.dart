@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:ebikesms/modules/explore/controller/bike_controller.dart';
+import 'package:ebikesms/modules/explore/functions/ride_session_handler.dart';
 import 'package:ebikesms/shared/utils/calculation.dart';
 import 'package:ebikesms/shared/utils/shared_state.dart';
 
@@ -8,6 +9,7 @@ import '../../global_import.dart';
 import '../sub-screen/navigation/screen/nav_destination.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:http/http.dart' as http;
+import 'end_ride_modal.dart';
 
 import 'custom_marker.dart';
 
@@ -319,7 +321,7 @@ class _MarkerCardState extends State<MarkerCard> {
                           backgroundColor: ColorConstant.darkBlue,
                           foregroundColor: ColorConstant.white,
                           onPressed: () {
-                            _confirmRideSession();
+                            RideSessionHandler.startSession(context, widget.bikeId);
                           },
                         ),
                       )
@@ -352,61 +354,6 @@ class _MarkerCardState extends State<MarkerCard> {
       ],
     );
   }
-
-
-  void _confirmRideSession() async {
-    // Set loading content while waiting to fetch bike data
-    SharedState.markerCardVisibility.value = false; // Purposely make it false first in order to see change
-    SharedState.markerCardVisibility.value = true;
-    SharedState.markerCardContent.value = MarkerCardContent.loading;
-    
-    // Fetch bike data
-    var results = await BikeController.getSingleBikeData(widget.bikeId);
-    if (results['status'] == 0) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Status: ${results['status']}, Message: ${results['message']}")),
-      );
-      return;
-    }
-    double parsedLat = double.parse(results['data'][0]['current_latitude']);
-    double parsedLong = double.parse(results['data'][0]['current_longitude']);
-
-    // Assign the start location (latlong)
-    SharedState.bikeCurrentLatitude.value = parsedLat;
-    SharedState.bikeCurrentLongitude.value = parsedLong;
-
-    // TODO: Get bike can get distance
-    // TODO: Deduct the current session with ride time available
-    // SharedState.currentTotalDistance.value =  // TODO: Get updates in increments from ebike for the actual distance travel
-
-    // Start timer for ride time
-    int rideTimeValue = 0;
-    SharedState.timer.value = Timer.periodic(const Duration(minutes: 1), (timer) {
-      rideTimeValue++;
-      String rideTimeStr = Calculation.convertMinuteToShortRideTime(rideTimeValue);
-      SharedState.currentRideTime.value = rideTimeStr;
-    });
-
-    // Assign the start ride time, will be uploaded when end session occurs
-    SharedState.rideStartDatetime.value = await Calculation.getCurrentDateTime();
-
-    // Set riding bike content for the marker card
-    SharedState.markerCardVisibility.value = false; // Purposely make it false first in order to see change
-    SharedState.markerCardVisibility.value = true;
-    SharedState.markerCardContent.value = MarkerCardContent.ridingBike;
-    SharedState.isRiding.value = true;
-    if(SharedState.cachedMarkers.value.isEmpty) {
-      SharedState.cachedMarkers.value.addAll(SharedState.visibleMarkers.value);
-    }
-    SharedState.visibleMarkers.value.clear();
-    SharedState.visibleMarkers.value.add(
-      CustomMarker.riding(
-        latitude: parsedLat,
-        longitude: parsedLong,
-      ),
-    );
-  }
-
 
   Widget _displayRidingBikeContent() {
     return Column(
@@ -462,9 +409,9 @@ class _MarkerCardState extends State<MarkerCard> {
                             : BorderSide.none,
                         onPressed: () {
                           if (isNavigating) {
-                            _endNavigation();
+                            RideSessionHandler.endNavigation();
                           } else {
-                            _startNavigation();
+                            RideSessionHandler.startNavigation(context);
                           }
                         },
                       );
@@ -542,7 +489,7 @@ class _MarkerCardState extends State<MarkerCard> {
                   SizedBox(
                     width: 50,
                     child: ValueListenableBuilder(
-                      valueListenable: SharedState.currentRideTime,
+                      valueListenable: SharedState.currentRideDuration,
                       builder: (context, rideTime, widget) {
                         return AutoSizeText(
                           rideTime, // "1h 43m",
@@ -622,9 +569,9 @@ class _MarkerCardState extends State<MarkerCard> {
                             : BorderSide.none,
                         onPressed: () {
                           if (isNavigating) {
-                            _endNavigation();
+                            RideSessionHandler.endNavigation();
                           } else {
-                            _startNavigation();
+                            RideSessionHandler.startNavigation(context);
                           }
                         },
                       );
@@ -705,7 +652,7 @@ class _MarkerCardState extends State<MarkerCard> {
                     child: SizedBox(
                       width: 50,
                       child: ValueListenableBuilder(
-                        valueListenable: SharedState.currentRideTime,
+                        valueListenable: SharedState.currentRideDuration,
                         builder: (context, rideTime, widget) {
                           return AutoSizeText(
                             rideTime, // "1h 43m",
@@ -824,25 +771,5 @@ class _MarkerCardState extends State<MarkerCard> {
         const Spacer(flex: 8),
       ],
     );
-  }
-
-  void _startNavigation() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const NavDestinationScreen()),
-    );
-  }
-
-  void _endNavigation() {
-    setState(() {
-      if (SharedState.isNavigating.value) {
-        SharedState.isNavigating.value = false;
-        SharedState.routePoints.value = [];
-        SharedState.visibleMarkers.value
-            .removeWhere((marker) => (marker.key == const ValueKey("pinpoint_marker")));
-        SharedState.visibleMarkers.value
-            .removeWhere((marker) => (marker.key as ValueKey).value.toString().startsWith("landmark_marker_"));
-      }
-    });
   }
 }

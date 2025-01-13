@@ -4,15 +4,32 @@ import 'package:flutter/material.dart';
 import 'package:ebikesms/ip.dart';
 import 'package:http/http.dart' as http;
 
-class LandmarkController extends ChangeNotifier {
-  static Future<Map<String, dynamic>> getLandmarks() async {
-    // Define the API URL
-    final url = Uri.parse("${ApiBase.baseUrl}/get_landmarks.php"); // TODO: Remember to run the host first
-    debugPrint("Starting HTTP POST request to URL: $url");
+class RideController extends ChangeNotifier {
+  static Future<Map<String, dynamic>> postRideSession(
+      int userId,
+      String bikeId,
+      String startDatetime,
+      String endDatetime,
+      int totalDistance
+      ) async {
 
+    // Define the API URL
+    final url = Uri.parse("${ApiBase.baseUrl}/post_ride_session.php"); // TODO: Remember to run the host first
+    debugPrint("Starting HTTP POST request to URL: $url");
+    final response;
     try {
       // Perform the HTTP POST request
-      final response = await http.post(url);
+      response = await http.post(
+        url,
+        headers: {"Content-Type": "application/json"},
+        body: json.encode({
+          "user_id": userId,
+          "bike_id": bikeId,
+          "start_datetime": startDatetime,
+          "end_datetime": endDatetime,
+          "total_distance": totalDistance,
+        }),
+      );
       debugPrint("Response status code: ${response.statusCode}");
 
       // Check if the HTTP response indicates failure (non-200 status)
@@ -68,6 +85,4 @@ class LandmarkController extends ChangeNotifier {
       };
     }
   }
-
-
 }
