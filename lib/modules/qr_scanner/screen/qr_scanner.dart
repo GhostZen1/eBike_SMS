@@ -45,7 +45,7 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
           QRCodeDartScanView(
             controller: _controller,
             resolutionPreset: QRCodeDartScanResolutionPreset.medium,
-            onCapture: (result) => askConfirmation(result)
+            onCapture: (result) => _askConfirmation(result)
           ),
 
           // Grey area layer
@@ -204,11 +204,14 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
     }
   }
 
-  void askConfirmation(result) async {
+  void _askConfirmation(result) async {
     if(!_isValidBikeId(result.text)) {
       _showErrorDialog(context);
       return;
     }
+
+    // Change the screen
+    SharedState.selectedNavIndex.value = 0;
 
     // Set loading content while waiting to fetch bike data
     SharedState.markerCardVisibility.value = false; // Purposely make it false first in order to see change

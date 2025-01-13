@@ -2,6 +2,7 @@ import 'package:ebikesms/modules/global_import.dart';
 import 'package:ebikesms/modules/auth/controller/login_controller.dart';
 import 'package:ebikesms/modules/auth/screen/signup/matric_number_screen.dart';
 import 'package:ebikesms/modules/auth/screen/forgetpassword/screen/forgetpassword.dart';
+import 'package:ebikesms/shared/utils/shared_state.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});

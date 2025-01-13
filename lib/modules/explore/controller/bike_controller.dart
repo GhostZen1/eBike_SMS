@@ -18,6 +18,19 @@ class BikeController extends ChangeNotifier {
     );
   }
 
+  // To update single bike data by bikeId
+  static Future<Map<String, dynamic>> updateSingleBike(String bikeId, String status, double currentLatitude, double currentLongitude) async {
+    return await _makePostRequest(
+      "update_single_bike.php",
+      body: {
+        "bike_id": bikeId,
+        "status": status,
+        "current_latitude": currentLatitude,
+        "current_longitude": currentLongitude,
+      },
+    );
+  }
+
   // Generalized private method for making HTTP POST requests
   static Future<Map<String, dynamic>> _makePostRequest(String endpoint,
       {Map<String, dynamic>? body}) async {

@@ -27,35 +27,25 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
     }
 
     // Fetch user details
-    $stmt = $conn->prepare("SELECT * FROM user WHERE user_id = ?");
+    $stmt = $conn->prepare("SELECT
+                            user_id,
+                            user_type,
+                            user_name,
+                            full_name,
+                            user_email,
+                            matric_number,
+                            available_ride_time
+                            FROM user WHERE user_id = ?");
     if ($stmt === false) {
         die(json_encode(array("status" => "error", "message" => "SQL prepare failed: " . $conn->error)));
     }
+
     $stmt->bind_param("i", $user_id);
     $stmt->execute();
     $result = $stmt->get_result();
 
     if ($result->num_rows > 0) {
         $user_data = $result->fetch_assoc();
-
-        // Format obtained_ride_time into hours and minutes
-        $totalMinutes = $user_data['available_ride_time']; // Assuming it's stored as minutes in the database
-        $hours = floor($totalMinutes / 60); // Calculate hours
-        $minutes = $totalMinutes % 60;     // Calculate remaining minutes
-
-        // Construct formatted string
-        if ($hours > 0) {
-            $formattedTime = "{$hours} hour" . ($hours > 1 ? "s" : ""); // Add plural 's' if hours > 1
-            if ($minutes > 0) {
-                $formattedTime .= " {$minutes} minute" . ($minutes > 1 ? "s" : ""); // Add plural 's' if minutes > 1
-            }
-        } else {
-            $formattedTime = "{$minutes} minute" . ($minutes > 1 ? "s" : "");
-        }
-
-        // Replace the value with the formatted string
-        $user_data['available_ride_time'] = $formattedTime;
-
         echo json_encode(array("status" => "success", "data" => $user_data));
     } else {
         echo json_encode(array("status" => "error", "message" => "User not found"));

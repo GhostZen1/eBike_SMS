@@ -47,10 +47,17 @@ class MyApp extends StatelessWidget {
       ),
       // home: ReportScreen(),
       //home: SignupScreen(pageController: pageController),  // Pass the PageController here
+<<<<<<< HEAD
        home: BottomNavBar(userId: 1, userType: 'Rider'),
       //home: ScannerScreen(),
 
             //home: LoginScreen(),
+=======
+      //home: BottomNavBar(userId: 4, userType: 'Rider'),
+      //home: ScannerScreen(),
+
+      home: LoginScreen(),
+>>>>>>> 4eec3193fdec604e6025414786d92451b0a142ac
 
     );
   }
