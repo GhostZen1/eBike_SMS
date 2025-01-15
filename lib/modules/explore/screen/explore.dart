@@ -40,7 +40,7 @@ class _ExploreScreenState extends State<ExploreScreen> with TickerProviderStateM
 
       Timer.periodic(Duration(seconds: 3), (timer) {
 
-    _fetchCurrentBikes();
+    _fetchCurrentBike();
 
   });
     
@@ -173,30 +173,6 @@ class _ExploreScreenState extends State<ExploreScreen> with TickerProviderStateM
     });
   }
 
-  void _updateRideMarkerRealTime() {
-    if (_singleBikes.isNotEmpty) {
-      for (int i = 0; i < _singleBikes.length; i++) {
-        if (_singleBikes[i]['current_latitude'] != null && _singleBikes[i]['current_longitude'] != null) {
-          double parsedLat = double.parse(_singleBikes[i]['current_latitude']);
-          double parsedLong = double.parse(_singleBikes[i]['current_longitude']);
-          
-          SharedState.visibleMarkers.value.removeWhere((marker) => marker.key == const ValueKey("riding_marker"));
-          
-          SharedState.visibleMarkers.value.add(
-              CustomMarker.riding(
-                latitude: parsedLat,
-                longitude: parsedLong,
-                // onTap: () => _onTapBikeMarker(i),
-              ),
-            );
-          
-        }
-      }
-    }
-    setState(() {
-      _isMarkersLoaded = true;
-    });
-  }
 
   void _buildUserMarker() {
     SharedState.visibleMarkers.value.add(
@@ -238,10 +214,7 @@ class _ExploreScreenState extends State<ExploreScreen> with TickerProviderStateM
     _buildBikeMarkers();
   }
 
-  void _fetchCurrentBikes() async {
-    setState(() {
-      _isMarkersLoaded = false;
-    });
+  void _fetchCurrentBike() async {
     String bikeId = "B25001";
     var results = await BikeController.fetchSingleBike(bikeId);
     if(results['status'] == 0) { // Failed
@@ -251,6 +224,31 @@ class _ExploreScreenState extends State<ExploreScreen> with TickerProviderStateM
     }
     _singleBikes = results['data'];
     _updateRideMarkerRealTime();
+  }
+
+  void _updateRideMarkerRealTime() {
+    if (_singleBikes.isNotEmpty) {
+      for (int i = 0; i < _singleBikes.length; i++) {
+        if (_singleBikes[i]['current_latitude'] != null && _singleBikes[i]['current_longitude'] != null) {
+          double parsedLat = double.parse(_singleBikes[i]['current_latitude']);
+          double parsedLong = double.parse(_singleBikes[i]['current_longitude']);
+
+          setState(() {
+            // Remove the old ride marker
+            SharedState.visibleMarkers.value.removeWhere((marker) => marker.key == const ValueKey("riding_marker"));
+
+            // Add the new ride marker
+            SharedState.visibleMarkers.value.add(
+              CustomMarker.riding(
+                latitude: parsedLat,
+                longitude: parsedLong,
+                // onTap: () => _onTapBikeMarker(i),
+              ),
+            );
+          });
+        }
+      }
+    }
   }
 
   void _fetchCurrentUserLocation() async {
@@ -370,19 +368,6 @@ class _ExploreScreenState extends State<ExploreScreen> with TickerProviderStateM
     SharedState.markerCardVisibility.value = true;
     // This is not redundant code. (Though it can be improved)
   }
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
   void animatePinpoint(LatLng target) {
