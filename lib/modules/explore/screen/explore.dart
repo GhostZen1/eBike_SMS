@@ -26,6 +26,7 @@ class ExploreScreen extends StatefulWidget {
 class _ExploreScreenState extends State<ExploreScreen> with TickerProviderStateMixin {
   late List<dynamic> _allLocations;
   late List<dynamic> _allBikes;
+  late List<dynamic> _singleBikes;
   late ValueNotifier<LatLng> _currentUserLatLng = ValueNotifier(MapConstant.initCenterPoint);
   bool _isMarkersLoaded = false;
 
@@ -36,7 +37,13 @@ class _ExploreScreenState extends State<ExploreScreen> with TickerProviderStateM
     _fetchLandmarks();
     _fetchBikes();
     _fetchCurrentUserLocation();
-    //_startLocationUpdates();
+
+      Timer.periodic(Duration(seconds: 3), (timer) {
+
+    _fetchCurrentBikes();
+
+  });
+    
   }
 
   @override
@@ -166,109 +173,30 @@ class _ExploreScreenState extends State<ExploreScreen> with TickerProviderStateM
     });
   }
 
-
-
-
-
-
-
-
-
-//Coding Zu
-//Untuk fetch location esp32
-
-  Timer? _locationTimer;
-  //bool _isMarkersLoaded = false;
-
-  // Replace with the actual IP of your ESP32
-  final String esp32Url = 'http://192.168.0.100/location';
-
-  // Method to fetch ESP32 location
-  Future<Map<String, double>> fetchESP32Location() async {
-    try {
-      final response = await http.get(Uri.parse(esp32Url));
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        return {
-          'latitude': double.parse(data['latitude']),
-          'longitude': double.parse(data['longitude']),
-        };
-      } else {
-        throw Exception('Failed to fetch location');
+  void _updateRideMarkerRealTime() {
+    if (_singleBikes.isNotEmpty) {
+      for (int i = 0; i < _singleBikes.length; i++) {
+        if (_singleBikes[i]['current_latitude'] != null && _singleBikes[i]['current_longitude'] != null) {
+          double parsedLat = double.parse(_singleBikes[i]['current_latitude']);
+          double parsedLong = double.parse(_singleBikes[i]['current_longitude']);
+          
+          SharedState.visibleMarkers.value.removeWhere((marker) => marker.key == const ValueKey("riding_marker"));
+          
+          SharedState.visibleMarkers.value.add(
+              CustomMarker.riding(
+                latitude: parsedLat,
+                longitude: parsedLong,
+                // onTap: () => _onTapBikeMarker(i),
+              ),
+            );
+          
+        }
       }
-    } catch (e) {
-      print('Error fetching ESP32 location: $e');
-      return {'latitude': 0.0, 'longitude': 0.0};
     }
-  }
-
-  void _buildCurrentMarkers(double latitude, double longitude) {
-  //SharedState.bikeCurrentLatitude = latitude as ValueNotifier<double>;
-  //SharedState.bikeCurrentLongitude = longitude as ValueNotifier<double>;
-  SharedState.visibleMarkers.value.clear(); // Clear existing markers
-  SharedState.visibleMarkers.value.add(
-    CustomMarker.bike(
-      index: 40,
-      latitude: latitude,
-      longitude: longitude,
-      bikeStatus: "Test",
-      onTap: () => _onTapCurrentMarker(latitude, longitude),
-      // onTap: () {
-      //   ScaffoldMessenger.of(context).showSnackBar(
-      //     SnackBar(
-      //       content: Text("Current Location: \nLatitude: $latitude\nLongitude: $longitude"),
-      //       duration: const Duration(seconds: 3),
-      //     ),
-      //   );
-      // },
-    ),
-  );
-
-  setState(() {
-    _isMarkersLoaded = true;
-  });
-}
-
-   // Method to start periodic location updates
-  void _startLocationUpdates() {
-    _locationTimer = Timer.periodic(Duration(seconds: 5), (timer) async {
-      final location = await fetchESP32Location();
-      _buildCurrentMarkers(location['latitude']!, location['longitude']!);
+    setState(() {
+      _isMarkersLoaded = true;
     });
   }
-
-
- void _onTapCurrentMarker(double latitude, double longitude) {
-    // Update these values to make marker card visible and it's details
-    SharedState.markerCardContent.value = MarkerCardContent.scanBike;
-    SharedState.bikeId.value = "Latitude = $latitude, Longitude = $longitude";
-    SharedState.bikeStatus.value = "Available";
-    SharedState.bikeCurrentLatitude.value = latitude ;
-    SharedState.bikeCurrentLongitude.value = longitude;
-
-    // Map animation when tapped
-    animatePinpoint(LatLng(latitude, longitude));
-    animateRotation(0);
-
-    // Must set to false first, then true again to make sure ValueListenableBuilder of MarkerCard listens
-    SharedState.markerCardVisibility.value = false;
-    SharedState.markerCardVisibility.value = true;
-    // This is not redundant code. (Though it can be improved)
-  }
-
-
-
-//sampai sini
-
-
-
-
-
-
-
-
-
-
 
   void _buildUserMarker() {
     SharedState.visibleMarkers.value.add(
@@ -308,6 +236,21 @@ class _ExploreScreenState extends State<ExploreScreen> with TickerProviderStateM
     }
     _allBikes = results['data'];
     _buildBikeMarkers();
+  }
+
+  void _fetchCurrentBikes() async {
+    setState(() {
+      _isMarkersLoaded = false;
+    });
+    String bikeId = "B25001";
+    var results = await BikeController.fetchSingleBike(bikeId);
+    if(results['status'] == 0) { // Failed
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Status: ${results['status']}, Message: ${results['message']}")),
+      );
+    }
+    _singleBikes = results['data'];
+    _updateRideMarkerRealTime();
   }
 
   void _fetchCurrentUserLocation() async {
@@ -388,13 +331,6 @@ class _ExploreScreenState extends State<ExploreScreen> with TickerProviderStateM
         SnackBar(content: Text('Error receiving location updates: $e')),
       );
     });
-  }
-
-  void _updateRideMarkerRealTime() {
-    if(SharedState.isRiding.value) {
-
-    }
-    // TODO: Make ride markers update in real time (needs IoT API)
   }
 
   void _onTapLocationMarker(int index) {

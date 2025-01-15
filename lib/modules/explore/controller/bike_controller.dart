@@ -31,6 +31,18 @@ class BikeController extends ChangeNotifier {
     );
   }
 
+  // To fetch single bike data by bikeId
+static Future<Map<String, dynamic>> fetchSingleBike(String bikeId) async {
+  return await _makePostRequest(
+    "get_single_bike.php",
+    body: {
+      "bike_id": bikeId,
+    },
+  );
+}
+
+
+
   // Generalized private method for making HTTP POST requests
   static Future<Map<String, dynamic>> _makePostRequest(String endpoint,
       {Map<String, dynamic>? body}) async {
