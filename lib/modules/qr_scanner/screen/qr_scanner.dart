@@ -183,7 +183,7 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
   // Initialize camera for flashlight control
   Future<void> _initializeCamera() async {
     final cameras = await availableCameras();
-    _cameraController = CameraController(cameras[0], ResolutionPreset.high);
+    _cameraController = CameraController(cameras[0], ResolutionPreset.high, enableAudio: false);
     await _cameraController!.initialize();
     setState(() {
       _isCameraCompleted = true;
