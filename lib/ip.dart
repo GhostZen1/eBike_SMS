@@ -12,5 +12,5 @@ static String amir = "http://192.168.0.31/e-bike";
   static String hosting = "https://etourmersing.com/Ebike_API/";
 
   // Alternatively, if you just need the base URL as a string
-  static String get baseUrl => zu;
+  static String get baseUrl => hosting;
 }
