@@ -51,7 +51,6 @@ class MyApp extends StatelessWidget {
       //home: ScannerScreen(),
 
       home: BottomNavBar(userId: 4, userType: 'Rider'),
-      //home: ScannerScreen(),
 
       //home: LoginScreen(),
 
