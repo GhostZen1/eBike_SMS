@@ -4,14 +4,12 @@ import 'package:ebikesms/modules/qr_scanner/screen/qr_scanner.dart';
 import 'package:flutter/material.dart';
 import 'package:ebikesms/modules/admin/report/screen/report.dart';
 import 'package:ebikesms/modules/admin/revenue/screen/revenue.dart';
-import 'package:ebikesms/modules/admin/menu.dart';
 
 
 import '../constants/app_constants.dart';
 import 'package:permission_handler/permission_handler.dart';
 import '../../modules/explore/screen/explore.dart';
 import '../../modules/menu/screen/menu.dart';
-import '../utils/calculation.dart';
 import '../utils/custom_icon.dart';
 import '../utils/shared_state.dart';
 
@@ -103,8 +101,8 @@ class _BottomNavBarRider extends State<BottomNavBar> {
                         // Bike marker cards:
                         bikeStatus: SharedState.bikeStatus.value,
                         bikeId: SharedState.bikeId.value,
-                        currentTotalDistance: SharedState.currentTotalDistance.value,
-                        currentRideTime: SharedState.currentRideDuration.value,
+                        currentRideDistance: SharedState.currentRideDistance.value,
+                        currentRideDuration: SharedState.currentRideDuration.value,
                         // Location marker cards:
                         landmarkNameMalay: SharedState.landmarkNameMalay.value,
                         landmarkNameEnglish: SharedState.landmarkNameEnglish.value,
@@ -161,8 +159,9 @@ class _BottomNavBarRider extends State<BottomNavBar> {
                     Stack(
                       alignment: Alignment.center,
                       children: [
-                        // For blocking the center nav bar item
-                        const SizedBox(
+                        // For blocking the center nav bar item Scan/Close button
+                        Container(
+                          color: ColorConstant.red,
                           width: 120,
                           height: 60,
                         ),
@@ -229,8 +228,9 @@ class _BottomNavBarRider extends State<BottomNavBar> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 3),
-                    SizedBox(
+                    Container( // Blocker for scan/close label
+                      color: ColorConstant.red,
+                      padding: const EdgeInsets.fromLTRB(0, 3, 0, 34),
                       width: 120,
                       child: ValueListenableBuilder(
                         valueListenable: SharedState.markerCardContent,
@@ -254,7 +254,6 @@ class _BottomNavBarRider extends State<BottomNavBar> {
                         },
                       )
                     ),
-                    const SizedBox(height: 34),
                   ],
                 )
               ],

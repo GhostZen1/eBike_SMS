@@ -22,9 +22,8 @@ class ExploreScreen extends StatefulWidget {
 
 
 class _ExploreScreenState extends State<ExploreScreen> with TickerProviderStateMixin {
-  late List<dynamic> _allLocations;
-  late List<dynamic> _allBikes;
-  late List<dynamic> _singleBikes;
+  late List<dynamic> _allLandmarkData;
+  late List<dynamic> _allBikeData;
   late ValueNotifier<LatLng> _currentUserLatLng = ValueNotifier(MapConstant.initCenterPoint);
   bool _isMarkersLoaded = false;
 
@@ -35,10 +34,6 @@ class _ExploreScreenState extends State<ExploreScreen> with TickerProviderStateM
     _fetchLandmarks();
     _fetchBikes();
     _fetchCurrentUserLocation();
-
-    Timer.periodic(Duration(seconds: 3), (timer) {
-      _fetchCurrentBike();
-    });
   }
 
   @override
@@ -101,19 +96,19 @@ class _ExploreScreenState extends State<ExploreScreen> with TickerProviderStateM
   }
 
 
-
+  // Marker One-time Building
   void _buildLandmarkMarkers() {
-    if (_allLocations.isNotEmpty) {
-      for (int i = 0; i < _allLocations.length; i++) {
-        if (_allLocations[i]['latitude'] != null && _allLocations[i]['longitude'] != null) {
-          double parsedLat = double.parse(_allLocations[i]['latitude']);
-          double parsedLong = double.parse(_allLocations[i]['longitude']);
+    if (_allLandmarkData.isNotEmpty) {
+      for (int i = 0; i < _allLandmarkData.length; i++) {
+        if (_allLandmarkData[i]['latitude'] != null && _allLandmarkData[i]['longitude'] != null) {
+          double parsedLat = double.parse(_allLandmarkData[i]['latitude']);
+          double parsedLong = double.parse(_allLandmarkData[i]['longitude']);
           SharedState.visibleMarkers.value.add(
             CustomMarker.landmark(
               index: i,
               latitude: parsedLat,
               longitude: parsedLong,
-              landmarkType: _allLocations[i]['landmark_type'],
+              landmarkType: _allLandmarkData[i]['landmark_type'],
               onTap: () => _onTapLocationMarker(i),
             ),
           );
@@ -126,19 +121,19 @@ class _ExploreScreenState extends State<ExploreScreen> with TickerProviderStateM
   }
 
   void _buildBikeMarkers() {
-    if (_allBikes.isNotEmpty) {
-      for (int i = 0; i < _allBikes.length; i++) {
-        if (_allBikes[i]['current_latitude'] != null && _allBikes[i]['current_longitude'] != null) {
-          double parsedLat = double.parse(_allBikes[i]['current_latitude']);
-          double parsedLong = double.parse(_allBikes[i]['current_longitude']);
+    if (_allBikeData.isNotEmpty) {
+      for (int i = 0; i < _allBikeData.length; i++) {
+        if (_allBikeData[i]['current_latitude'] != null && _allBikeData[i]['current_longitude'] != null) {
+          double parsedLat = double.parse(_allBikeData[i]['current_latitude']);
+          double parsedLong = double.parse(_allBikeData[i]['current_longitude']);
           // Ignoring bikes that have "Riding" status
-          if (_allBikes[i]['status'] != "Riding") {
+          if (_allBikeData[i]['status'] != "Riding") {
             SharedState.visibleMarkers.value.add(
               CustomMarker.bike(
                 index: i,
                 latitude: parsedLat,
                 longitude: parsedLong,
-                bikeStatus: _allBikes[i]['status'],
+                bikeStatus: _allBikeData[i]['status'],
                 onTap: () => _onTapBikeMarker(i),
               ),
             );
@@ -163,6 +158,48 @@ class _ExploreScreenState extends State<ExploreScreen> with TickerProviderStateM
     });
   }
 
+
+  // Marker onTap Behaviours
+  void _onTapLocationMarker(int index) {
+    // Update these values to make marker card visible and it's details
+    SharedState.markerCardContent.value = MarkerCardContent.landmark;
+    SharedState.landmarkNameMalay.value = _allLandmarkData[index]['landmark_name_malay'];
+    SharedState.landmarkNameEnglish.value = _allLandmarkData[index]['landmark_name_english'];
+    SharedState.landmarkType.value = _allLandmarkData[index]['landmark_type'];
+    SharedState.landmarkAddress.value = _allLandmarkData[index]['address'];
+    SharedState.landmarkLatitude.value = double.parse(_allLandmarkData[index]['latitude']);
+    SharedState.landmarkLongitude.value = double.parse(_allLandmarkData[index]['longitude']);
+
+    // Map animation when tapped
+    animatePinpoint(LatLng(double.parse(_allLandmarkData[index]['latitude']), double.parse(_allLandmarkData[index]['longitude'])));
+    animateRotation(0);
+
+    // Must set to false first, then true again to make sure ValueListenableBuilder of MarkerCard listens
+    SharedState.enableMarkerCard.value = false;
+    SharedState.enableMarkerCard.value = true;
+    // This is not redundant code. (Though it can be improved)
+  }
+
+  void _onTapBikeMarker(int index) {
+    // Update these values to make marker card visible and it's details
+    SharedState.markerCardContent.value = MarkerCardContent.scanBike;
+    SharedState.bikeId.value = _allBikeData[index]['bike_id'];
+    SharedState.bikeStatus.value = _allBikeData[index]['status'];
+    SharedState.bikeCurrentLatitude.value = double.parse(_allBikeData[index]['current_latitude']) ;
+    SharedState.bikeCurrentLongitude.value = double.parse(_allBikeData[index]['current_longitude']);
+
+    // Map animation when tapped
+    animatePinpoint(LatLng(double.parse(_allBikeData[index]['current_latitude']), double.parse(_allBikeData[index]['current_longitude'])));
+    animateRotation(0);
+
+    // Must set to false first, then true again to make sure ValueListenableBuilder of MarkerCard listens
+    SharedState.enableMarkerCard.value = false;
+    SharedState.enableMarkerCard.value = true;
+    // This is not redundant code. (Though it can be improved)
+  }
+
+
+  // Marker Data Fetching
   void _fetchLandmarks() async {
     setState(() {
       _isMarkersLoaded = false;
@@ -173,7 +210,7 @@ class _ExploreScreenState extends State<ExploreScreen> with TickerProviderStateM
         SnackBar(content: Text("Status: ${results['status']}, Message: ${results['message']}")),
       );
     }
-    _allLocations = results['data'];
+    _allLandmarkData = results['data'];
     _buildLandmarkMarkers();
   }
 
@@ -187,47 +224,12 @@ class _ExploreScreenState extends State<ExploreScreen> with TickerProviderStateM
         SnackBar(content: Text("Status: ${results['status']}, Message: ${results['message']}")),
       );
     }
-    _allBikes = results['data'];
+    _allBikeData = results['data'];
     _buildBikeMarkers();
   }
 
-  void _fetchCurrentBike() async {
-    String bikeId = "B25001";
-    var results = await BikeController.fetchSingleBike(bikeId);
-    if(results['status'] == 0) { // Failed
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Status: ${results['status']}, Message: ${results['message']}")),
-      );
-    }
-    _singleBikes = results['data'];
-    _updateRideMarkerRealTime();
-  }
 
-  void _updateRideMarkerRealTime() {
-    if (_singleBikes.isNotEmpty) {
-      for (int i = 0; i < _singleBikes.length; i++) {
-        if (_singleBikes[i]['current_latitude'] != null && _singleBikes[i]['current_longitude'] != null) {
-          double parsedLat = double.parse(_singleBikes[i]['current_latitude']);
-          double parsedLong = double.parse(_singleBikes[i]['current_longitude']);
-
-          setState(() {
-            // Remove the old ride marker
-            SharedState.visibleMarkers.value.removeWhere((marker) => marker.key == const ValueKey("riding_marker"));
-
-            // Add the new ride marker
-            SharedState.visibleMarkers.value.add(
-              CustomMarker.riding(
-                latitude: parsedLat,
-                longitude: parsedLong,
-                // onTap: () => _onTapBikeMarker(i),
-              ),
-            );
-          });
-        }
-      }
-    }
-  }
-
+  // User location permission, fetching, and real-time update
   void _fetchCurrentUserLocation() async {
     if(await getLocationPermission() == false) return;
 
@@ -288,19 +290,18 @@ class _ExploreScreenState extends State<ExploreScreen> with TickerProviderStateM
       ),
     ).listen((Position position) {
       LatLng currentLatLng = LatLng(position.latitude, position.longitude);
-      _currentUserLatLng.value = currentLatLng;
-      setState(() {
-        // Remove the old User marker
-        SharedState.visibleMarkers.value.removeWhere((marker) => marker.key == const ValueKey("user_marker"));
 
-        // Add the updated User marker
-        SharedState.visibleMarkers.value.add(
-            CustomMarker.user(
-                latitude: _currentUserLatLng.value.latitude,
-                longitude: _currentUserLatLng.value.longitude
-            )
-        );
-      });
+      _currentUserLatLng.value = currentLatLng;
+      // Remove the old User marker
+      SharedState.visibleMarkers.value.removeWhere((marker) => marker.key == const ValueKey("user_marker"));
+
+      // Add the updated User marker
+      SharedState.visibleMarkers.value.add(
+          CustomMarker.user(
+              latitude: _currentUserLatLng.value.latitude,
+              longitude: _currentUserLatLng.value.longitude
+          )
+      );
     }, onError: (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error receiving location updates: $e')),
@@ -308,45 +309,8 @@ class _ExploreScreenState extends State<ExploreScreen> with TickerProviderStateM
     });
   }
 
-  void _onTapLocationMarker(int index) {
-    // Update these values to make marker card visible and it's details
-    SharedState.markerCardContent.value = MarkerCardContent.landmark;
-    SharedState.landmarkNameMalay.value = _allLocations[index]['landmark_name_malay'];
-    SharedState.landmarkNameEnglish.value = _allLocations[index]['landmark_name_english'];
-    SharedState.landmarkType.value = _allLocations[index]['landmark_type'];
-    SharedState.landmarkAddress.value = _allLocations[index]['address'];
-    SharedState.landmarkLatitude.value = double.parse(_allLocations[index]['latitude']);
-    SharedState.landmarkLongitude.value = double.parse(_allLocations[index]['longitude']);
 
-    // Map animation when tapped
-    animatePinpoint(LatLng(double.parse(_allLocations[index]['latitude']), double.parse(_allLocations[index]['longitude'])));
-    animateRotation(0);
-
-    // Must set to false first, then true again to make sure ValueListenableBuilder of MarkerCard listens
-    SharedState.enableMarkerCard.value = false;
-    SharedState.enableMarkerCard.value = true;
-    // This is not redundant code. (Though it can be improved)
-  }
-
-  void _onTapBikeMarker(int index) {
-    // Update these values to make marker card visible and it's details
-    SharedState.markerCardContent.value = MarkerCardContent.scanBike;
-    SharedState.bikeId.value = _allBikes[index]['bike_id'];
-    SharedState.bikeStatus.value = _allBikes[index]['status'];
-    SharedState.bikeCurrentLatitude.value = double.parse(_allBikes[index]['current_latitude']) ;
-    SharedState.bikeCurrentLongitude.value = double.parse(_allBikes[index]['current_longitude']);
-
-    // Map animation when tapped
-    animatePinpoint(LatLng(double.parse(_allBikes[index]['current_latitude']), double.parse(_allBikes[index]['current_longitude'])));
-    animateRotation(0);
-
-    // Must set to false first, then true again to make sure ValueListenableBuilder of MarkerCard listens
-    SharedState.enableMarkerCard.value = false;
-    SharedState.enableMarkerCard.value = true;
-    // This is not redundant code. (Though it can be improved)
-  }
-
-
+  // Map Animations
   void animatePinpoint(LatLng target) {
     // Set the duration of the animation
     const duration = Duration(milliseconds: 500); // 1 second for a smoother transition

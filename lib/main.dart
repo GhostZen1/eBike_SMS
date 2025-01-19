@@ -52,7 +52,7 @@ class MyApp extends StatelessWidget {
      //  home: BottomNavBar(userId: 1, userType: 'Rider'),
       //home: ScannerScreen(),
 
-      home: BottomNavBar(userId: 4, userType: 'Admin'),
+      home: BottomNavBar(userId: 4, userType: 'Rider'),
       //home: ScannerScreen(),
 
       // home: RevenueScreen(),

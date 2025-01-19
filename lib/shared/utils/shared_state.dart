@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:ebikesms/modules/explore/widget/custom_marker.dart';
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
@@ -37,8 +35,7 @@ class SharedState {
   static ValueNotifier<int> availableRideTime = ValueNotifier(0);
 
   // Ride related
-  static ValueNotifier<Timer?> rideTimer = ValueNotifier<Timer?>(null);
-  static ValueNotifier<String> currentTotalDistance = ValueNotifier("< 1 meter"); // In km/m format
+  static ValueNotifier<String> currentRideDistance = ValueNotifier("< 1 meter"); // In km/m format
   static ValueNotifier<String> currentRideDuration = ValueNotifier("< 1 minute");  // In "xh xm" format
   static ValueNotifier<String> rideStartDatetime = ValueNotifier(""); // In DATETIME format 1999-12-31 00:00:00
   static ValueNotifier<String> rideEndDatetime = ValueNotifier(""); // In DATETIME format 1999-12-31 00:00:00

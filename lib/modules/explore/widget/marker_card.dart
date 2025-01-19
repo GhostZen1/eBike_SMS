@@ -10,8 +10,8 @@ class MarkerCard extends StatefulWidget {
   final bool isNavigating;
   final String bikeStatus;
   final String bikeId;
-  final String currentTotalDistance;
-  final String currentRideTime;
+  final String currentRideDistance;
+  final String currentRideDuration;
   final String landmarkNameMalay;
   final String landmarkNameEnglish;
   final String landmarkType;
@@ -24,8 +24,8 @@ class MarkerCard extends StatefulWidget {
     // For bike marker cards:
     this.bikeStatus = "",
     this.bikeId = "",
-    this.currentTotalDistance = "",
-    this.currentRideTime = "",
+    this.currentRideDistance = "",
+    this.currentRideDuration = "",
     // For landmark marker cards:
     this.landmarkNameMalay = "",
     this.landmarkNameEnglish = "",
@@ -431,7 +431,7 @@ class _MarkerCardState extends State<MarkerCard> {
                   SizedBox(
                     width: 50,
                     child: AutoSizeText(
-                      widget.currentTotalDistance,
+                      widget.currentRideDistance,
                       maxLines: 1,
                       minFontSize: 8,
                       maxFontSize: 12,
@@ -591,7 +591,7 @@ class _MarkerCardState extends State<MarkerCard> {
                   SizedBox(
                     width: 50,
                     child: AutoSizeText(
-                      widget.currentTotalDistance,
+                      widget.currentRideDistance,
                       maxLines: 1,
                       minFontSize: 8,
                       maxFontSize: 12,
