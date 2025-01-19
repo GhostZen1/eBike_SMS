@@ -20,27 +20,40 @@ class _RevenueScreenState extends State<RevenueScreen> {
 
   int currentMonthIndex = DateTime.now().month - 1;
   List<String> monthNames = [
-    "January", "February", "March", "April", "May", "June", "July",
-    "August", "September", "October", "November", "December"
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December"
   ];
 
   double totalRevenue = 0.0;
-  double totalToday = 0.0;
-  double totalWeek = 0.0;
-  double totalMonth = 0.0;
+  bool isLoading = false; // Added loading state
 
   @override
   void initState() {
     super.initState();
-    _fetchTransactions();
-
+    _fetchTransactions(); // Default to the current month
     _searchController.addListener(() {
       _filterTransactions(_searchController.text);
     });
   }
 
+  Map<int, double> weeklyRevenue = {}; // To hold revenue for each week (1–5).
+
   void _fetchTransactions([String? selectedMonthYear]) async {
     try {
+      setState(() {
+        isLoading = true;  // Start loading
+      });
+
       final fetchedTransactionsMap =
           await TransactionService.fetchTransactionDetails();
 
@@ -50,18 +63,33 @@ class _RevenueScreenState extends State<RevenueScreen> {
       List<Transaction> currentMonthTransactions =
           fetchedTransactionsMap[monthYear] ?? [];
 
+      // Initialize weeklyRevenue map for the selected month
+      weeklyRevenue = {for (var i = 1; i <= 5; i++) i: 0.0};
+
+      for (var transaction in currentMonthTransactions) {
+        DateTime transactionDate = DateTime.parse(transaction.transactionDate);
+
+        // Calculate the week number within the month
+        int weekNumber = ((transactionDate.day - 1) / 7).floor() + 1;
+        if (weekNumber >= 1 && weekNumber <= 5) {
+          weeklyRevenue[weekNumber] = (weeklyRevenue[weekNumber] ?? 0.0) +
+              (double.tryParse(transaction.transactionTotal) ?? 0.0);
+        }
+      }
+
       setState(() {
         groupedTransactions = fetchedTransactionsMap;
         transactions = currentMonthTransactions;
         filteredTransactions = transactions;
-        totalRevenue = _calculateTotalRevenueForMonth(selectedMonthYear ?? DateFormat('MMMM yyyy').format(DateTime.now()));
 
-        // Calculate total for today, this week, and this month
-        totalToday = _calculateTotalRevenueForToday();
-        totalWeek = _calculateTotalRevenueForWeek();
-        totalMonth = totalRevenue; // Use the total revenue for the selected month
+        // Calculate total revenue for the current month
+        totalRevenue = _calculateTotalRevenueForMonth(monthYear);
+        isLoading = false;  // Stop loading
       });
     } catch (e) {
+      setState(() {
+        isLoading = false;  // Stop loading in case of error
+      });
       print("Error fetching transactions: $e");
     }
   }
@@ -74,32 +102,18 @@ class _RevenueScreenState extends State<RevenueScreen> {
     return total;
   }
 
-  double _calculateTotalRevenueForToday() {
-    double total = 0.0;
-    DateTime today = DateTime.now();
+  List<double> _calculateWeeklyTotalsForMonth(int monthIndex) {
+    List<double> weeklyTotals = List.filled(5, 0.0); // Supports up to 5 weeks
     for (var transaction in transactions) {
       DateTime transactionDate = DateTime.parse(transaction.transactionDate);
-      if (transactionDate.year == today.year &&
-          transactionDate.month == today.month &&
-          transactionDate.day == today.day) {
-        total += double.tryParse(transaction.transactionTotal) ?? 0.0;
+      if (transactionDate.month == monthIndex + 1) {
+        int weekNumber =
+            ((transactionDate.day - 1) ~/ 7); // Calculate week number
+        weeklyTotals[weekNumber] +=
+            double.tryParse(transaction.transactionTotal) ?? 0.0;
       }
     }
-    return total;
-  }
-
-  double _calculateTotalRevenueForWeek() {
-    double total = 0.0;
-    DateTime now = DateTime.now();
-    DateTime startOfWeek = now.subtract(Duration(days: now.weekday - 1));
-
-    for (var transaction in transactions) {
-      DateTime transactionDate = DateTime.parse(transaction.transactionDate);
-      if (transactionDate.isAfter(startOfWeek) && transactionDate.isBefore(now)) {
-        total += double.tryParse(transaction.transactionTotal) ?? 0.0;
-      }
-    }
-    return total;
+    return weeklyTotals;
   }
 
   void _filterTransactions(String query) {
@@ -118,12 +132,19 @@ class _RevenueScreenState extends State<RevenueScreen> {
   }
 
   void _onDonutChartClick() {
+    if (isLoading) return;  // Prevent clicks while loading
     setState(() {
+      // Update the current month index when the donut chart is clicked
       currentMonthIndex = (currentMonthIndex + 1) % 12;
+
+      // Update the selected month and year
       String selectedMonthYear =
           "${monthNames[currentMonthIndex]} ${DateTime.now().year}";
 
+      // Fetch transactions for the new month
       _fetchTransactions(selectedMonthYear);
+
+      // Recalculate the total revenue for the selected month
       totalRevenue = _calculateTotalRevenueForMonth(selectedMonthYear);
     });
   }
@@ -145,16 +166,16 @@ class _RevenueScreenState extends State<RevenueScreen> {
                     style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 16),
-                  GestureDetector(
-                    onTap: _onDonutChartClick,
-                    child: PieChartWidget(
-                      monthName: '${monthNames[currentMonthIndex]}',
-                      monthIndex: currentMonthIndex,
-                      totalToday: totalToday,
-                      totalWeek: totalWeek,
-                      totalMonth: totalMonth,
-                    ),
-                  ),
+                  isLoading
+                      ? const Center(child: CircularProgressIndicator())  // Show loading spinner
+                      : GestureDetector(
+                          onTap: _onDonutChartClick,
+                          child: PieChartWidget(
+                            monthName: '${monthNames[currentMonthIndex]}',
+                            weeklyTotals:
+                                _calculateWeeklyTotalsForMonth(currentMonthIndex),
+                          ),
+                        ),
                   const SizedBox(height: 8),
                 ],
               ),
@@ -168,13 +189,18 @@ class _RevenueScreenState extends State<RevenueScreen> {
                     fontWeight: FontWeight.w600,
                     color: ColorConstant.darkBlue),
               ),
-              Text(
-                'RM ${totalRevenue.toStringAsFixed(2)}', 
-                style: const TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: ColorConstant.darkBlue),
-              ),
+              transactions.isEmpty
+                  ? const Text(
+                      'No Data Available for this month',
+                      style: TextStyle(fontSize: 18, color: Colors.grey),
+                    )
+                  : Text(
+                      'RM ${totalRevenue.toStringAsFixed(2)}',
+                      style: const TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          color: ColorConstant.darkBlue),
+                    ),
               const SizedBox(height: 20),
 
               // Search Bar
