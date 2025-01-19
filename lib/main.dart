@@ -8,6 +8,8 @@ import 'package:ebikesms/modules/qr_scanner/screen/qr_scanner.dart';
 import 'package:ebikesms/shared/widget/bottom_nav_bar.dart';
 import 'package:flutter/material.dart';
 import 'modules/auth/screen/login.dart'; // Adjust the path as needed
+import 'modules/admin/revenue/screen/revenue.dart'; // Adjust the path as needed
+
 import 'modules/auth/controller/user_storage_service.dart'; // Adjust the path as needed
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart'; // Add dependency in pubspec.yaml
@@ -50,10 +52,11 @@ class MyApp extends StatelessWidget {
      //  home: BottomNavBar(userId: 1, userType: 'Rider'),
       //home: ScannerScreen(),
 
-      home: BottomNavBar(userId: 4, userType: 'Rider'),
+      home: BottomNavBar(userId: 4, userType: 'Admin'),
       //home: ScannerScreen(),
 
-      //home: LoginScreen(),
+      // home: RevenueScreen(),
+      // home: LoginScreen(),
 
     );
   }

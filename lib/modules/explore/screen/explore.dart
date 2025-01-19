@@ -9,9 +9,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 import '../controller/landmark_controller.dart';
 import '../widget/custom_map.dart';
-import 'package:http/http.dart' as http;
-import 'dart:async'; // For Timer
-import 'dart:convert'; // For jsonDecode
+import 'dart:async';
 
 class ExploreScreen extends StatefulWidget {
   const ExploreScreen({super.key});
@@ -38,12 +36,9 @@ class _ExploreScreenState extends State<ExploreScreen> with TickerProviderStateM
     _fetchBikes();
     _fetchCurrentUserLocation();
 
-      Timer.periodic(Duration(seconds: 3), (timer) {
-
-    _fetchCurrentBike();
-
-  });
-    
+    Timer.periodic(Duration(seconds: 3), (timer) {
+      _fetchCurrentBike();
+    });
   }
 
   @override
@@ -98,24 +93,7 @@ class _ExploreScreenState extends State<ExploreScreen> with TickerProviderStateM
           // Loading Animation
           Visibility(
             visible: !_isMarkersLoaded,
-            child: Center(
-              child: Container(
-                padding: const EdgeInsets.all(15),
-                decoration: const BoxDecoration(
-                  color: ColorConstant.white,
-                  shape: BoxShape.circle,
-                  boxShadow: [
-                    BoxShadow(
-                      color: ColorConstant.shadow,
-                      offset: Offset(0, 2),
-                      blurRadius: 10,
-                      spreadRadius: 0
-                    )
-                  ]
-                ),
-                child: const LoadingAnimation(dimension: 30),
-              )
-            )
+            child: const LoadingAnimation(dimension: 30, enableBackground: true),
           ),
         ],
       ),
@@ -172,7 +150,6 @@ class _ExploreScreenState extends State<ExploreScreen> with TickerProviderStateM
       _isMarkersLoaded = true;
     });
   }
-
 
   void _buildUserMarker() {
     SharedState.visibleMarkers.value.add(
@@ -252,7 +229,7 @@ class _ExploreScreenState extends State<ExploreScreen> with TickerProviderStateM
   }
 
   void _fetchCurrentUserLocation() async {
-    if(getLocationPermission() == false) return;
+    if(await getLocationPermission() == false) return;
 
     // Fetch user's initial location
     try {
@@ -289,7 +266,7 @@ class _ExploreScreenState extends State<ExploreScreen> with TickerProviderStateM
       permission = await Geolocator.requestPermission();
       if (permission == LocationPermission.denied) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Location permissions are denied.')),
+          const SnackBar(content: Text('Location permissions are disabled.')),
         );
         return false;
       }
@@ -346,8 +323,8 @@ class _ExploreScreenState extends State<ExploreScreen> with TickerProviderStateM
     animateRotation(0);
 
     // Must set to false first, then true again to make sure ValueListenableBuilder of MarkerCard listens
-    SharedState.markerCardVisibility.value = false;
-    SharedState.markerCardVisibility.value = true;
+    SharedState.enableMarkerCard.value = false;
+    SharedState.enableMarkerCard.value = true;
     // This is not redundant code. (Though it can be improved)
   }
 
@@ -364,8 +341,8 @@ class _ExploreScreenState extends State<ExploreScreen> with TickerProviderStateM
     animateRotation(0);
 
     // Must set to false first, then true again to make sure ValueListenableBuilder of MarkerCard listens
-    SharedState.markerCardVisibility.value = false;
-    SharedState.markerCardVisibility.value = true;
+    SharedState.enableMarkerCard.value = false;
+    SharedState.enableMarkerCard.value = true;
     // This is not redundant code. (Though it can be improved)
   }
 

@@ -6,7 +6,7 @@ import '../../../shared/utils/calculation.dart';
 import '../../../shared/utils/shared_state.dart';
 import '../functions/ride_session_handler.dart';
 
-Future<void> EndRideModal(BuildContext context, MapController mapController) async {
+Future<void> EndRideModal(BuildContext context) async {
   return showDialog<void>(
     context: context,
     barrierDismissible: true, // User must tap button!

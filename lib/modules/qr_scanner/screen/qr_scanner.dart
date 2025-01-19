@@ -183,7 +183,7 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
   // Initialize camera for flashlight control
   Future<void> _initializeCamera() async {
     final cameras = await availableCameras();
-    _cameraController = CameraController(cameras[0], ResolutionPreset.high);
+    _cameraController = CameraController(cameras[0], ResolutionPreset.high, enableAudio: false);
     await _cameraController!.initialize();
     setState(() {
       _isCameraCompleted = true;
@@ -214,8 +214,8 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
     SharedState.selectedNavIndex.value = 0;
 
     // Set loading content while waiting to fetch bike data
-    SharedState.markerCardVisibility.value = false; // Purposely make it false first in order to see change
-    SharedState.markerCardVisibility.value = true;
+    SharedState.enableMarkerCard.value = false; // Purposely make it false first in order to see change
+    SharedState.enableMarkerCard.value = true;
     SharedState.markerCardContent.value = MarkerCardContent.loading;
 
     // Fetch bike data
@@ -229,8 +229,8 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
     }
 
     // Set loading content while waiting to fetch bike data
-    SharedState.markerCardVisibility.value = false; // Purposely make it false first in order to see change
-    SharedState.markerCardVisibility.value = true;
+    SharedState.enableMarkerCard.value = false; // Purposely make it false first in order to see change
+    SharedState.enableMarkerCard.value = true;
     SharedState.markerCardContent.value = MarkerCardContent.confirmBike;
     SharedState.bikeId.value = results['data'][0]['bike_id'];
     SharedState.bikeStatus.value = results['data'][0]['status'];
