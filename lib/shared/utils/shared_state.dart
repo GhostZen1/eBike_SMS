@@ -23,7 +23,7 @@ class SharedState {
   static ValueNotifier<MapController> mainMapController = ValueNotifier(MapController());
 
   // Marker card related
-  static ValueNotifier<bool> markerCardVisibility = ValueNotifier(false);
+  static ValueNotifier<bool> enableMarkerCard = ValueNotifier(false);
   static ValueNotifier<MarkerCardContent> markerCardContent = ValueNotifier(MarkerCardContent.scanBike);
 
   // Bike related
@@ -33,10 +33,11 @@ class SharedState {
   static ValueNotifier<double> bikeCurrentLongitude = ValueNotifier(double.minPositive);
 
   // User related
+  static ValueNotifier<bool> isAvailableRideTimeNewest = ValueNotifier(false);
   static ValueNotifier<int> availableRideTime = ValueNotifier(0);
 
   // Ride related
-  static ValueNotifier<Timer?> timer = ValueNotifier<Timer?>(null);
+  static ValueNotifier<Timer?> rideTimer = ValueNotifier<Timer?>(null);
   static ValueNotifier<String> currentTotalDistance = ValueNotifier("< 1 meter"); // In km/m format
   static ValueNotifier<String> currentRideDuration = ValueNotifier("< 1 minute");  // In "xh xm" format
   static ValueNotifier<String> rideStartDatetime = ValueNotifier(""); // In DATETIME format 1999-12-31 00:00:00
