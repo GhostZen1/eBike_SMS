@@ -71,7 +71,7 @@ class _BottomNavBarRider extends State<BottomNavBar> {
 
             // Marker Card
             ValueListenableBuilder<bool>(
-              valueListenable: SharedState.markerCardVisibility,
+              valueListenable: SharedState.enableMarkerCard,
               builder: (context, visible, _) {
                 return Visibility(
                   visible: visible,
@@ -79,9 +79,9 @@ class _BottomNavBarRider extends State<BottomNavBar> {
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       Visibility(
-                        visible: SharedState.markerCardVisibility.value && (SharedState.markerCardContent.value != MarkerCardContent.ridingBike && SharedState.markerCardContent.value != MarkerCardContent.warningBike),
+                        visible: SharedState.enableMarkerCard.value && (SharedState.markerCardContent.value != MarkerCardContent.ridingBike && SharedState.markerCardContent.value != MarkerCardContent.warningBike),
                         child: TextButton(
-                          onPressed: (){ SharedState.markerCardVisibility.value = false; },
+                          onPressed: (){ SharedState.enableMarkerCard.value = false; },
                           child: Container(
                             padding: const EdgeInsets.all(15),
                             decoration: const BoxDecoration(
@@ -171,7 +171,7 @@ class _BottomNavBarRider extends State<BottomNavBar> {
                           style: TextButton.styleFrom(padding: EdgeInsets.zero),
                           onPressed: () async {
                             if(SharedState.isRiding.value) {
-                              EndRideModal(context, SharedState.mainMapController.value);
+                              EndRideModal(context);
                             }
                             else {
                               final status = await Permission.camera.request();
@@ -271,14 +271,14 @@ class _BottomNavBarRider extends State<BottomNavBar> {
       setState(() {
         SharedState.selectedNavIndex.value = index;
         if(index != 0) {
-          temp = SharedState.markerCardVisibility.value;
-          SharedState.markerCardVisibility.value = false;
+          temp = SharedState.enableMarkerCard.value;
+          SharedState.enableMarkerCard.value = false;
         }
         else {
-          SharedState.markerCardVisibility.value = temp;
+          if(SharedState.markerCardContent.value == MarkerCardContent.loading) temp = false;
+          SharedState.enableMarkerCard.value = temp;
         }
       });
-      // _pageController.jumpToPage(index);
     }
   }
 

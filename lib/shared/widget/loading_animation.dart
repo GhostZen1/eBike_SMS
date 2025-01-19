@@ -1,9 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
+import '../constants/app_constants.dart';
+
 class LoadingAnimation extends StatefulWidget {
   final double dimension;
-  const LoadingAnimation({super.key, required this.dimension});
+  final bool enableBackground;
+  const LoadingAnimation({
+    super.key,
+    required this.dimension,
+    this.enableBackground = false
+  });
 
   @override
   _LoadingAnimationState createState() => _LoadingAnimationState();
@@ -25,7 +32,7 @@ class _LoadingAnimationState extends State<LoadingAnimation>
   
   @override
   Widget build(BuildContext context) {
-    return RotationTransition(
+    final rotatingIcon = RotationTransition(
       turns: _controller,
       child: SvgPicture.asset(
         'assets/icons/loading-coloured.svg',
@@ -33,5 +40,26 @@ class _LoadingAnimationState extends State<LoadingAnimation>
         height: widget.dimension,
       ),
     );
+
+    return (!widget.enableBackground)
+        ? rotatingIcon
+        : Center(
+          child: Container(
+            padding: const EdgeInsets.all(15),
+            decoration: const BoxDecoration(
+                color: ColorConstant.white,
+                shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                      color: ColorConstant.shadow,
+                      offset: Offset(0, 2),
+                      blurRadius: 10,
+                      spreadRadius: 0
+                  )
+                ]
+              ),
+              child: rotatingIcon
+            )
+          );
   }
 }

@@ -1,5 +1,5 @@
 import 'package:auto_size_text/auto_size_text.dart';
-import 'package:ebikesms/modules/explore/widget/custom_warning_border.dart';
+import 'package:ebikesms/modules/global_import.dart';
 import 'package:ebikesms/modules/menu/widget/icon_card.dart';
 import 'package:ebikesms/modules/menu/widget/menu_tile.dart';
 import 'package:ebikesms/shared/utils/calculation.dart';
@@ -41,10 +41,12 @@ class _MenuScreenState extends State<MenuScreen> {
   }
 
   Future<void> _fetchUserData() async {
+    SharedState.isAvailableRideTimeNewest.value = false;
     try {
       // Retrieve the user ID from secure storage
       String? userIdString = await _secureStorage.read(key: 'userId');
-      userId = int.tryParse(userIdString ?? "0") ?? 0;
+      // userId = int.tryParse(userIdString ?? "0") ?? 0;
+      userId = 4;
 
       if (userIdString != null) {
         // Fetch user data from the API using the user_id
@@ -60,8 +62,8 @@ class _MenuScreenState extends State<MenuScreen> {
             if (responseBody['status'] == 'success') {
               setState(() {
                 _userData = responseBody['data'];
-                // SharedState.availableRideTime.value = _userData?['available_ride_time'];
-                SharedState.availableRideTime.value = 1;
+                SharedState.availableRideTime.value = _userData?['available_ride_time'];
+                SharedState.isAvailableRideTimeNewest.value = true;
               });
             } else {
               throw Exception(
@@ -81,6 +83,8 @@ class _MenuScreenState extends State<MenuScreen> {
       print('Error loading user data: $e');
     }
   }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -115,13 +119,13 @@ class _MenuScreenState extends State<MenuScreen> {
                     const SizedBox(height: 4),
                     Text(
                       _userData?['matric_number'] ??
-                          'N/A', // Ensure this key exists in API
+                          'Loading...', // Ensure this key exists in API
                       style: const TextStyle(color: ColorConstant.grey),
                     ),
                     SizedBox(
                       width: 220, // Adjust the width as needed
                       child: AutoSizeText(
-                        _userData?['user_email'] ?? 'N/A', // Ensure this key exists in API
+                        _userData?['user_email'] ?? 'Loading...', // Ensure this key exists in API
                         maxFontSize: 14,
                         minFontSize: 10,
                         maxLines: 1,
@@ -143,16 +147,23 @@ class _MenuScreenState extends State<MenuScreen> {
                   // Positioned Button ("+ Add More")
                   GestureDetector(
                     onTap: () async {
-                      await Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => TimeTopUpScreen(
-                            userId: userId,
+                      bool isTimeAdded = false;
+                      try{
+                        isTimeAdded = await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => TimeTopUpScreen(
+                              userId: userId,
+                            ),
                           ),
-                        ),
-                      );
-                      // Refresh the user data if any result is returned
-                      _fetchUserData();
+                        );
+
+                        // Refresh the user data if any result is returned
+                        if(isTimeAdded) _fetchUserData();
+                      }
+                      catch (e) {
+                        print("Error in navigation: $e"); // Debug 3
+                      }
                     },
                     child: Container(
                       width: double.infinity,
@@ -214,26 +225,34 @@ class _MenuScreenState extends State<MenuScreen> {
                             ],
                           ),
                           const Spacer(),
+
                           // Ride Time Value
                           ValueListenableBuilder(
-                            valueListenable: SharedState.availableRideTime,
-                            builder: (_, rideTime, __) {
-                              return FittedBox(
-                                fit: BoxFit.scaleDown,
-                                child: AutoSizeText(
-                                  (_userData?['available_ride_time'] == null || rideTime == 0)
-                                      ? 'Empty Balance.'
-                                      : Calculation.convertMinutesToLongRideTime(rideTime),
-                                  maxFontSize: 28,
-                                  minFontSize: 24,
-                                  maxLines: 1,
-                                  textAlign: TextAlign.center,
-                                  style: const TextStyle(
-                                    letterSpacing: 1.0,
-                                    fontWeight: FontWeight.bold,
-                                    color: ColorConstant.white,
-                                  ),
-                                ),
+                            valueListenable: SharedState.isAvailableRideTimeNewest,
+                            builder: (_, isNewest, __) {
+                              return ValueListenableBuilder(
+                                  valueListenable: SharedState.availableRideTime,
+                                  builder: (_, rideTime, __) {
+                                    return (!isNewest)
+                                        ? const LoadingAnimation(dimension: 30)
+                                        : FittedBox(
+                                      fit: BoxFit.scaleDown,
+                                      child: AutoSizeText(
+                                        (rideTime == 0)
+                                            ? 'Empty Balance.'
+                                            : Calculation.convertMinutesToLongRideTime(rideTime),
+                                        maxFontSize: 28,
+                                        minFontSize: 24,
+                                        maxLines: 1,
+                                        textAlign: TextAlign.center,
+                                        style: const TextStyle(
+                                          letterSpacing: 1.0,
+                                          fontWeight: FontWeight.bold,
+                                          color: ColorConstant.white,
+                                        ),
+                                      ),
+                                    );
+                                  }
                               );
                             }
                           ),

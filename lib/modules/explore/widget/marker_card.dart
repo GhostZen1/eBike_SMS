@@ -1,17 +1,9 @@
-import 'dart:async';
-
-import 'package:ebikesms/modules/explore/controller/bike_controller.dart';
 import 'package:ebikesms/modules/explore/functions/ride_session_handler.dart';
-import 'package:ebikesms/shared/utils/calculation.dart';
 import 'package:ebikesms/shared/utils/shared_state.dart';
 
 import '../../global_import.dart';
-import '../sub-screen/navigation/screen/nav_destination.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:http/http.dart' as http;
-import 'end_ride_modal.dart';
-
-import 'custom_marker.dart';
 
 class MarkerCard extends StatefulWidget {
   final MarkerCardContent markerCardState;
@@ -310,7 +302,7 @@ class _MarkerCardState extends State<MarkerCard> {
                           foregroundColor: ColorConstant.darkBlue,
                           borderSide: const BorderSide(width: 2, color: ColorConstant.darkBlue),
                           onPressed: () {
-                            SharedState.markerCardVisibility.value = false;
+                            SharedState.enableMarkerCard.value = false;
                           },
                         ),
                       ),

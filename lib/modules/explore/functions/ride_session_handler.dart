@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:ebikesms/modules/explore/controller/user_controller.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../../../shared/utils/calculation.dart';
 import '../../../shared/utils/shared_state.dart';
@@ -17,6 +18,10 @@ class RideSessionHandler {
     double lat = double.parse(results['data'][0]['current_latitude']);
     double long = double.parse(results['data'][0]['current_longitude']);
 
+    // String? userIdString = await const FlutterSecureStorage().read(key: 'userId');
+    // int userId = int.tryParse(userIdString ?? "0") ?? 0;
+    int userId = 4; // TODO: Remove hardcoded id
+
     // Update shared state with bike location
     SharedState.bikeCurrentLatitude.value = lat;
     SharedState.bikeCurrentLongitude.value = long;
@@ -25,14 +30,14 @@ class RideSessionHandler {
     SharedState.rideStartDatetime.value = await Calculation.getCurrentDateTime();
 
     // Start ride timer
-    SharedState.timer.value = Timer.periodic(const Duration(seconds: 2), (timer) {
+    SharedState.rideTimer.value = Timer.periodic(const Duration(seconds: 10), (timer) {
       if(SharedState.availableRideTime.value > 0) {
-        // Update current ride duration
+        // Update current ride duration and minus available ride time
         SharedState.currentRideDuration.value = Calculation.convertMinutesToShortRideTime(timer.tick);
-        // Minus available ride time
-        SharedState.availableRideTime.value -= timer.tick;
+        SharedState.availableRideTime.value -= 1;
+        updateUserRideTime(userId, SharedState.availableRideTime.value);
       }
-      else {
+      else { // When there is no quota left (availableRideTime)
         SharedState.availableRideTime.value = 0;
         RideSessionHandler.endSession(context);
         return;
@@ -50,11 +55,22 @@ class RideSessionHandler {
 
 
   static Future<void> endSession(BuildContext context) async {
-    _updateMarkerCard(MarkerCardContent.loading);
 
+    // Set the marker card content to loading
+    SharedState.markerCardContent.value = MarkerCardContent.loading;
+
+     // Update enableMarkerCard based on the selectedNavIndex
+    SharedState.enableMarkerCard.value = (SharedState.selectedNavIndex.value != 0) ? false : true;
+
+    // If selectedNavIndex is 0, call _updateMarkerCard
+    if (SharedState.selectedNavIndex.value == 0) {
+      _updateMarkerCard(MarkerCardContent.loading);
+    }
+
+    // Fetch the end datetime and userId before posting
+    SharedState.rideEndDatetime.value = await Calculation.getCurrentDateTime();
     String? userIdString = await const FlutterSecureStorage().read(key: 'userId');
     int userId = int.tryParse(userIdString ?? "0") ?? 0;
-    SharedState.rideEndDatetime.value = await Calculation.getCurrentDateTime();
 
     // Post ride session data
     var results = await RideController.postRideSession(
@@ -80,12 +96,13 @@ class RideSessionHandler {
     }
 
     // Reset states
+    SharedState.enableMarkerCard.value = false;
     SharedState.isRiding.value = false;
     _resetMarkers();
-    SharedState.timer.value?.cancel();
+    SharedState.rideTimer.value?.cancel();
+    SharedState.rideTimer.value = null;
     SharedState.currentRideDuration.value = "< 1 minute";
     SharedState.currentTotalDistance.value = "< 1 meter";
-    SharedState.markerCardVisibility.value = false;
 
     // End navigation if ongoing
     if (SharedState.isNavigating.value) {
@@ -114,8 +131,8 @@ class RideSessionHandler {
 
   // Helper Methods
   static void _updateMarkerCard(MarkerCardContent content) {
-    SharedState.markerCardVisibility.value = false;
-    SharedState.markerCardVisibility.value = true;
+    SharedState.enableMarkerCard.value = false;
+    SharedState.enableMarkerCard.value = true;
     SharedState.markerCardContent.value = content;
   }
 
@@ -126,5 +143,11 @@ class RideSessionHandler {
   static void _resetMarkers() {
     SharedState.visibleMarkers.value = List.from(SharedState.cachedMarkers.value);
     SharedState.cachedMarkers.value.clear();
+  }
+
+  static void updateUserRideTime(int userId, int deductedRideTime) async {
+    SharedState.isAvailableRideTimeNewest.value = false;
+    await UserController.updateUserRideTime(userId, deductedRideTime);
+    SharedState.isAvailableRideTimeNewest.value = true;
   }
 }

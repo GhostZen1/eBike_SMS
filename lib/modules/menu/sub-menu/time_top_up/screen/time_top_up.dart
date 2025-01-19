@@ -120,7 +120,7 @@ class _TimeTopUpScreenState extends State<TimeTopUpScreen> {
                   label: "Confirm",
                   onPressed: () {
                     int value = int.parse(_controller.text);
-                    Navigator.pushReplacement(
+                    Navigator.push(
                       context,
                       MaterialPageRoute(
                         builder: (context) => TimeTopUpProcessScreen(
@@ -128,11 +128,8 @@ class _TimeTopUpScreenState extends State<TimeTopUpScreen> {
                           keyedTotal: value,
                         ),
                       ),
-                    ).then((_) {
-                      setState(() {
-                        labelText = "New label text after returning";
-                        labelColor = ColorConstant.black;
-                      });
+                    ).then((flag) {
+                      Navigator.pop(context, flag);  // Pop back to menu with the value
                     });
                   },
                   enable: isValidAmount ? true : false,

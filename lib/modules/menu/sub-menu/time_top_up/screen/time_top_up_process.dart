@@ -18,12 +18,14 @@ class TimeTopUpProcessScreen extends StatefulWidget {
 }
 
 class _TimeTopUpProcessScreenState extends State<TimeTopUpProcessScreen> {
-  late String transactionDate;
-  late int transactionTotal;
-  late int obtainedRideTime;
-  late int userId;
+  late String _transactionDate;
+  late int _transactionTotal;
+  late int _obtainedRideTime;
+  late int _userId;
 
-  bool isSuccessful = false;
+  bool _isSuccessful = false;
+  bool _isTimeAdded = false;
+  
 
   @override
   void initState() {
@@ -37,13 +39,13 @@ class _TimeTopUpProcessScreenState extends State<TimeTopUpProcessScreen> {
       appBar: AppBar(
         leading: IconButton(
             onPressed: () {
-              Navigator.pop(context, userId);
+              Navigator.pop(context, _isTimeAdded);
             },
             icon: CustomIcon.close(20, color: ColorConstant.black)),
         title: const Text("Processing Payment"),
         centerTitle: true,
       ),
-      body: isSuccessful ? _displaySuccessfulView() : _displayLoadingView(),
+      body: _isSuccessful ? _displaySuccessfulView() : _displayLoadingView(),
     );
   }
 
@@ -81,6 +83,7 @@ class _TimeTopUpProcessScreenState extends State<TimeTopUpProcessScreen> {
   }
 
   Widget _displaySuccessfulView() {
+    _isTimeAdded = true;
     return Expanded(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -111,7 +114,7 @@ class _TimeTopUpProcessScreenState extends State<TimeTopUpProcessScreen> {
             child: CustomRectangleButton(
               label: "Back to menu",
               onPressed: () {
-                Navigator.pop(context, userId);
+                Navigator.pop(context, _isTimeAdded);
               },
             ),
           ),
@@ -128,19 +131,19 @@ class _TimeTopUpProcessScreenState extends State<TimeTopUpProcessScreen> {
   Future<void> _initDetails() async {
     String dateTime = await Calculation.getCurrentDateTime();
     setState(() {
-      transactionDate = dateTime;
-      transactionTotal = widget.keyedTotal;
-      obtainedRideTime = Calculation.convertMoneyToMinutes(transactionTotal);
-      userId = widget.userId; // Get from login
+      _transactionDate = dateTime;
+      _transactionTotal = widget.keyedTotal;
+      _obtainedRideTime = Calculation.convertMoneyToMinutes(_transactionTotal);
+      _userId = widget.userId; // Get from login
     });
   }
 
   Future<void> _processTransaction() async {
     var result = await TransactionController.addTransaction(
-      transactionDate: transactionDate,
-      transactionTotal: transactionTotal,
-      obtainedRideTime: obtainedRideTime,
-      userId: userId,
+      transactionDate: _transactionDate,
+      transactionTotal: _transactionTotal,
+      obtainedRideTime: _obtainedRideTime,
+      userId: _userId,
     );
 
     // Error occurred, display a snack bar
@@ -149,7 +152,7 @@ class _TimeTopUpProcessScreenState extends State<TimeTopUpProcessScreen> {
           content: Text(result['message']),
           duration: const Duration(seconds: 2)));
       setState(() {
-        isSuccessful = false;
+        _isSuccessful = false;
       });
     }
     // Successful
@@ -157,7 +160,7 @@ class _TimeTopUpProcessScreenState extends State<TimeTopUpProcessScreen> {
       // For fake loading effect :P
       await Future.delayed(const Duration(seconds: 1, milliseconds: 2));
       setState(() {
-        isSuccessful = true;
+        _isSuccessful = true;
       });
     }
   }
