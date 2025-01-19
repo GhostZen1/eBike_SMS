@@ -45,8 +45,7 @@ class _MenuScreenState extends State<MenuScreen> {
     try {
       // Retrieve the user ID from secure storage
       String? userIdString = await _secureStorage.read(key: 'userId');
-      // userId = int.tryParse(userIdString ?? "0") ?? 0;
-      userId = 4;
+      userId = int.tryParse(userIdString ?? "0") ?? 0;
 
       if (userIdString != null) {
         // Fetch user data from the API using the user_id
