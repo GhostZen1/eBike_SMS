@@ -5,26 +5,30 @@ import 'package:http/http.dart' as http; // For API calls
 import 'dart:math';
 
 class EmailVerification {
-  // Validates the email format
-  bool CheckPattern(String email) {
-    final emailPattern =
-        r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'; // Basic pattern
-    return RegExp(emailPattern).hasMatch(email);
-  }
 
-  // Sends the verification email
-  Future<int> checkEmailPattern(String email, BuildContext context) async {
-    if (!CheckPattern(email)) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Invalid email format!'),
-        ),
-      );
-      return 0; // Invalid email format
-    } else {
-      return 1;
-    }
+bool CheckPattern(String email) {
+  final basicPattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'; 
+  final utemPattern =
+      r'^[BDM]\d{9}@student\.utem\.edu\.my$'; // New pattern for UTEM emails
+  
+  // Check both patterns
+  return RegExp(basicPattern).hasMatch(email) && RegExp(utemPattern).hasMatch(email);
+}
+
+// Sends the verification email
+Future<int> checkEmailPattern(String email, BuildContext context) async {
+  if (!CheckPattern(email)) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Invalid email format!'),
+      ),
+    );
+    return 0; // Invalid email format
+  } else {
+    return 1;
   }
+}
+
 
    String generateOtp() {
     final random = Random();

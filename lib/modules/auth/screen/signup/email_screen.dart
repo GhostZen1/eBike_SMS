@@ -70,7 +70,7 @@ class _EmailScreenState extends State<EmailScreen> {
                     ),
                   ),
                   Text(
-                    "Enter your email address",
+                    "Enter your UTeM email address",
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: screenWidth * 0.035,
@@ -87,7 +87,7 @@ class _EmailScreenState extends State<EmailScreen> {
                         TextField(
                           controller: _email,
                           decoration: InputDecoration(
-                            labelText: "Email Address",
+                            labelText: "Student Email",
                             labelStyle: TextStyle(
                               fontFamily: 'Poppins',
                               color: ColorConstant.grey,
