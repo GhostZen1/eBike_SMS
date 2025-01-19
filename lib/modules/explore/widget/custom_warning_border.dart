@@ -92,39 +92,3 @@ class _PopupMessageState extends State<PopupMessage> {
     );
   }
 }
-
-// If you want to use it use this
-void _showPopup(BuildContext context, bool isWarning) {
-  final overlay = Overlay.of(context);
-  final overlayEntry = OverlayEntry(
-    builder: (context) => Positioned(
-      top: 20,
-      left: 0,
-      right: 0,
-      child: Material(
-        color: Colors.transparent,
-        child: Container(
-          width: 300,
-          height: 100,
-          child: PopupMessage(
-            icon: Icons.warning_amber_rounded,
-            iconColor: isWarning ? ColorConstant.yellow : ColorConstant.white,
-            title: isWarning ? "You entering the border." : "BORDER CROSSED",
-            message: isWarning
-                ? "Do not cross the marked borders. Violations will be reported."
-                : "Please return the bike to safe zone immediately.",
-            backgroundColor:
-                isWarning ? ColorConstant.white : ColorConstant.red,
-            textColor: isWarning ? ColorConstant.black : ColorConstant.white,
-          ),
-        ),
-      ),
-    ),
-  );
-
-  overlay.insert(overlayEntry);
-
-  Future.delayed(Duration(seconds: 5), () {
-    overlayEntry.remove();
-  });
-}

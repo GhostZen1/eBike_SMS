@@ -1,6 +1,9 @@
 import 'dart:async';
 import 'package:ebikesms/modules/explore/controller/user_controller.dart';
+import 'package:ebikesms/modules/explore/functions/geo_fence_handler.dart';
+import 'package:ebikesms/modules/explore/widget/custom_warning_border.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:latlong2/latlong.dart';
 import '../../../shared/utils/calculation.dart';
 import '../../../shared/utils/shared_state.dart';
 import '../../global_import.dart';
@@ -160,21 +163,45 @@ class RideSessionHandler {
   }
 
   static void _startRideDistancePolling(BuildContext context, String bikeId) {
-    Timer.periodic(const Duration(seconds: 3), (timer) async {
+    Timer.periodic(const Duration(seconds: 5), (timer) async {
       var results = await BikeController.fetchSingleBike(bikeId);
-      if(results['status'] == 0) { // Failed
+      if (results['status'] == 0) { // Failed
         _showSnackbar(context, "Status: ${results['status']}, Message: ${results['message']}");
       }
-      _updateRideMarkerRealTime(results['data']);
-      //SharedState.currentRideDistance.value = results['data']['']; // TODO: Assign total distance here
+      else {
+        // var bikeData = results['data'];
+        // debugPrint("bikeData: $bikeData");
+        // LatLng bikeLocation = LatLng(bikeData['latitude'], bikeData['longitude']);
 
-      // Stop the timer once ride session ends (to conserve ram)
-      if(SharedState.isRiding.value == false) {
-        SharedState.visibleMarkers.value.removeWhere((marker) => marker.key == const ValueKey("riding_marker"));
-        timer.cancel();
-      };
+        // Check the bike's location relative to the geofence
+        int locationStatus = GeoFenceHandler.checkPointInGeofence(
+          LatLng(2.3015950784208057, 102.3120986405456), // TODO: Replace with "bikeLocation"
+          MapConstant.geoFencePoints,
+          30, // Threshold in meters for "on boundary"
+        );
+
+        // Handle the status
+        if (locationStatus == -1) { // When it's out of bounds, a warning appears
+          _updateMarkerCard(MarkerCardContent.warningBike);
+          GeoFenceHandler.showPopup(context, true);
+        } else if (locationStatus == 0) { // When it's near geo fence, an alert appears
+          _updateMarkerCard(MarkerCardContent.ridingBike);
+          GeoFenceHandler.showPopup(context, false);
+        } else if (locationStatus == 1) { // Back to normal, no warning border whatsoever
+          _updateMarkerCard(MarkerCardContent.ridingBike);
+        }
+
+        // Update marker and stop polling if ride ends
+        _updateRideMarkerRealTime(results['data']); // TODO: Make this to bikeData
+        if (SharedState.isRiding.value == false) {
+          SharedState.visibleMarkers.value
+              .removeWhere((marker) => marker.key == const ValueKey("riding_marker"));
+          timer.cancel();
+        }
+      }
     });
   }
+
 
   static void _updateRideMarkerRealTime(var bikeData) {
     if (bikeData.isNotEmpty) {

@@ -161,7 +161,7 @@ class _BottomNavBarRider extends State<BottomNavBar> {
                       children: [
                         // For blocking the center nav bar item Scan/Close button
                         Container(
-                          color: ColorConstant.red,
+                          color: Colors.transparent,
                           width: 120,
                           height: 60,
                         ),
@@ -229,7 +229,7 @@ class _BottomNavBarRider extends State<BottomNavBar> {
                       ],
                     ),
                     Container( // Blocker for scan/close label
-                      color: ColorConstant.red,
+                      color: Colors.transparent,
                       padding: const EdgeInsets.fromLTRB(0, 3, 0, 34),
                       width: 120,
                       child: ValueListenableBuilder(

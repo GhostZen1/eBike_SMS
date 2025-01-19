@@ -12,17 +12,24 @@ import 'modules/admin/revenue/screen/revenue.dart'; // Adjust the path as needed
 
 import 'modules/auth/controller/user_storage_service.dart'; // Adjust the path as needed
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart'; // Add dependency in pubspec.yaml
 import 'package:ebikesms/modules/admin/report/screen/report.dart';
 
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
+
   const FlutterSecureStorage secureStorage = FlutterSecureStorage();
-  
+
   String? userId = await secureStorage.read(key: 'userId');
-  
+
+// Lock the app to portrait mode
+  await SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
+
   runApp(MyApp(isLoggedIn: userId != null));
 }
 
@@ -36,6 +43,7 @@ class MyApp extends StatelessWidget {
     final PageController pageController = PageController();
 
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: ColorConstant.darkBlue),
         useMaterial3: true,
@@ -48,15 +56,15 @@ class MyApp extends StatelessWidget {
         ),
       ),
       // home: ReportScreen(),
-      //home: SignupScreen(pageController: pageController),  // Pass the PageController here
-     //  home: BottomNavBar(userId: 1, userType: 'Rider'),
-      //home: ScannerScreen(),
+      // home: SignupScreen(pageController: pageController),  // Pass the PageController here
+      // home: BottomNavBar(userId: 1, userType: 'Rider'),
+      // home: ScannerScreen(),
 
-      home: BottomNavBar(userId: 4, userType: 'Rider'),
+      //home: BottomNavBar(userId: 4, userType: 'Rider'),
       //home: ScannerScreen(),
 
       // home: RevenueScreen(),
-      // home: LoginScreen(),
+      home: LoginScreen(),
 
     );
   }

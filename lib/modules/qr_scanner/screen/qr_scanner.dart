@@ -2,6 +2,7 @@ import 'package:ebikesms/modules/global_import.dart';
 import 'package:ebikesms/shared/utils/shared_state.dart';
 import 'package:ebikesms/shared/widget/bottom_nav_bar.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:qr_code_dart_scan/qr_code_dart_scan.dart';
 import 'package:camera/camera.dart';
 
@@ -15,7 +16,7 @@ class QRScannerScreen extends StatefulWidget {
 }
 
 class _QRScannerScreenState extends State<QRScannerScreen> {
-  QRCodeDartScanController? _controller;
+  QRCodeDartScanController? _qrController;
   CameraController? _cameraController;
   bool _isFlashlightOn = false;
   bool _isCameraCompleted = false;
@@ -23,8 +24,8 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
   @override
   void initState() {
     super.initState();
-    _controller = QRCodeDartScanController();
     _initializeCamera();  // Initialize the camera for flashlight control
+    _qrController = QRCodeDartScanController();
   }
 
   @override
@@ -43,7 +44,7 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
         children: [
           // QR Code Scanner View (background)
           QRCodeDartScanView(
-            controller: _controller,
+            controller: _qrController,
             resolutionPreset: QRCodeDartScanResolutionPreset.medium,
             onCapture: (result) => _askConfirmation(result)
           ),
@@ -185,6 +186,7 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
     final cameras = await availableCameras();
     _cameraController = CameraController(cameras[0], ResolutionPreset.high, enableAudio: false);
     await _cameraController!.initialize();
+    await _cameraController!.unlockCaptureOrientation();
     setState(() {
       _isCameraCompleted = true;
     });

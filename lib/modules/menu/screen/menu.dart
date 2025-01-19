@@ -30,7 +30,6 @@ class MenuScreen extends StatefulWidget {
 
 class _MenuScreenState extends State<MenuScreen> {
   final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
-  late String totalRideTime = ""; // TODO: Fetch from database
   late int userId = 0;
   Map<String, dynamic>? _userData;
 
