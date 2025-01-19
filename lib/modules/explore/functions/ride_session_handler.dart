@@ -18,9 +18,8 @@ class RideSessionHandler {
     double lat = double.parse(results['data'][0]['current_latitude']);
     double long = double.parse(results['data'][0]['current_longitude']);
 
-    // String? userIdString = await const FlutterSecureStorage().read(key: 'userId');
-    // int userId = int.tryParse(userIdString ?? "0") ?? 0;
-    int userId = 4; // TODO: Remove hardcoded id
+    String? userIdString = await const FlutterSecureStorage().read(key: 'userId');
+    int userId = int.tryParse(userIdString ?? "0") ?? 0;
 
     // Update shared state with bike location
     SharedState.bikeCurrentLatitude.value = lat;
